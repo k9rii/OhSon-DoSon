@@ -18,13 +18,8 @@
     .chip.active{background:linear-gradient(135deg, rgba(46,125,50,.16), rgba(167,215,181,.08)); color:var(--text)}
 
     .tabs{display:flex; gap:8px; flex-wrap:wrap; margin:16px 0}
-    .tab{padding:10px 14px; border-radius:999px; border:1px solid var(--border); background:var(--panel-2); color:var(--muted); font-weight:600}
+    .tab{padding:10px 14px; border-radius:999px; border:1px solid var(--border); background:var(--panel-2); color:var(--muted); font-weight:600; cursor:pointer}
     .tab.active{background:linear-gradient(135deg,var(--accent),#7bbf9f); color:#0b3d2e; border-color:transparent}
-
-    /* 태그 필터 바 */
-    .tagbar{display:flex; gap:8px; flex-wrap:wrap; margin:8px 0 16px}
-    .tchip{padding:8px 12px; border-radius:999px; border:1px solid var(--border); background:var(--panel-2); color:var(--muted); cursor:pointer}
-    .tchip.active{background:linear-gradient(135deg,var(--accent),#7bbf9f); color:#0b3d2e; border-color:transparent; font-weight:700}
 
     .list{display:grid; gap:16px; margin-bottom:20px}
     .item{display:grid; grid-template-columns:1fr auto; gap:12px; padding:16px; background:linear-gradient(180deg,var(--panel),var(--panel-2)); border:1px solid var(--border); border-radius:16px; box-shadow:var(--shadow)}
@@ -36,17 +31,7 @@
     .stats{display:flex; gap:10px; color:var(--muted)}
     .stat{display:inline-flex; align-items:center; gap:6px}
 
-    .banner{display:flex; justify-content:space-between; align-items:center; gap:12px; padding:16px; border-radius:16px; background:linear-gradient(90deg, rgba(46,125,50,.14), rgba(167,215,181,.08)); border:1px solid var(--border); margin:14px 0}
-    .banner .title{font-weight:800}
-
-    .paging{display:flex; justify-content:center; gap:8px; margin:18px 0}
-    .page{padding:8px 12px; border-radius:10px; border:1px solid var(--border); background:var(--panel-2)}
-    .page.active{background:linear-gradient(135deg,var(--accent),#7bbf9f); color:#0b3d2e; border-color:transparent}
-
     .fab{position:fixed; right:20px; bottom:20px; padding:14px 16px; border-radius:16px; background:linear-gradient(135deg,var(--accent),#7bbf9f); color:#0b3d2e; font-weight:900; border:0; box-shadow:var(--shadow)}
-
-    .toast{position:fixed; left:50%; transform:translateX(-50%); bottom:88px; background:var(--panel); color:var(--text); padding:10px 14px; border-radius:10px; border:1px solid var(--border); box-shadow:var(--shadow)}
-
     footer{max-width:1100px; margin:24px auto 40px; padding:0 20px; color:var(--muted); font-size:.9rem}
   </style>
 </head>
@@ -60,8 +45,8 @@
       <div class="spacer"></div>
       <nav class="top-actions" aria-label="상단 내비">
         <a class="btn" href="home.html">홈</a>
-        <a class="btn" href="/stats/">통계</a>
-        <a class="btn" href="/settings/">설정</a>
+        <a class="btn" href="data_analysis.html">통계</a>
+        <a class="btn" href="settings.html">설정</a>
         <a class="btn btn-primary" href="/messages/thread.html">메시지</a>
       </nav>
     </div>
@@ -71,13 +56,9 @@
     <div class="toolbar">
       <label class="search" aria-label="게시글 검색">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" style="opacity:.7"><path d="M10 2a8 8 0 105.293 14.293l4.707 4.707 1.414-1.414-4.707-4.707A8 8 0 0010 2zm0 2a6 6 0 110 12 6 6 0 010-12z"/></svg>
-        <input placeholder="검색: 제목·내용·작성자" aria-label="검색어 입력" />
+        <input id="searchInput" placeholder="검색: 제목·내용·작성자" aria-label="검색어 입력" />
       </label>
-      <div class="filters">
-        <span class="chip active">최신순</span>
-        <span class="chip">댓글많은순</span>
-        <span class="chip">좋아요순</span>
-      </div>
+      
     </div>
 
     <div class="tabs" role="tablist" aria-label="카테고리">
@@ -87,22 +68,6 @@
       <a class="tab" href="#noise">소음/배려</a>
       <a class="tab" href="#event">이벤트/모임</a>
       <a class="tab" href="#free">자유</a>
-      <span class="spacer" style="flex:1"></span>
-      <a class="tab" href="home.html#trend" title="대시보드 · 최근 24시간 추세">추세</a>
-      <a class="tab" href="home.html#types" title="대시보드 · 소리 유형 TOP3">유형TOP3</a>
-      <a class="tab" href="home.html#pattern" title="대시보드 · 나의 소음 패턴">패턴</a>
-      <a class="tab" href="data_analysis.html#noiseChart" title="데이터 & 통계">통계</a>
-    </div>
-
-    <!-- 태그 필터 (동적) -->
-    <div class="tagbar" id="tagbar" aria-label="태그"></div>
-
-    <div class="banner">
-      <div>
-        <div class="title">단어 필터링 안내</div>
-        <div class="sub" style="color:var(--muted)">비속어/비방 키워드는 자동 차단됩니다. 모두가 편한 커뮤니티를 함께 만들어요 😊</div>
-      </div>
-      <a class="btn" href="/settings/faq.html">자세히</a>
     </div>
 
     <div id="all" class="list" aria-label="전체 게시글"></div>
@@ -111,30 +76,21 @@
     <div id="noise" class="list" aria-label="소음/배려" hidden></div>
     <div id="event" class="list" aria-label="이벤트/모임" hidden></div>
     <div id="free" class="list" aria-label="자유" hidden></div>
-
-    <div class="paging">
-      <span class="page">이전</span>
-      <span class="page active">1</span>
-      <span class="page">2</span>
-      <span class="page">3</span>
-      <span class="page">다음</span>
-    </div>
   </main>
 
   <a class="fab" href="write.html">📝 글쓰기</a>
-  <div class="toast">단어 필터: 비속어 자동 차단</div>
 
   <footer>
-    <div>※ 데이터 연동은 추후 <strong>Firebase</strong> 컬렉션(예: <code>posts</code>, <code>comments</code>, <code>profiles</code>)로 교체합니다. 현재 화면은 <strong>HTML/CSS/JS 프로토타입</strong>입니다.</div>
+    <div>※ 데이터는 <strong>data/posts.json</strong>에서 불러옵니다. 현재 화면은 <strong>HTML/CSS/JS 프로토타입</strong>입니다.</div>
   </footer>
+
   <script>
     (function(){
       const sections = ['all','notice','life','noise','event','free'];
       const tabs = Array.from(document.querySelectorAll('.tabs .tab'));
       const containers = Object.fromEntries(sections.map(id => [id, document.getElementById(id)]));
-      const tagbar = document.getElementById('tagbar');
+      const searchInput = document.getElementById('searchInput');
       let postsCache = [];
-      let currentTag = 'all'; // '#모임' 같은 값 또는 'all'
 
       function createItem(post){
         const a = document.createElement('a');
@@ -146,8 +102,7 @@
         title.textContent = post.title;
         const meta = document.createElement('div');
         meta.className = 'meta';
-        const pill = post.tag ? `<span class="pill">${post.tag}</span>` : '';
-        meta.innerHTML = `<span>${post.author}</span><span>·</span><span>${post.time}</span>${pill}`;
+        meta.innerHTML = `<span>${post.author}</span><span>·</span><span>${post.time}</span><span class="pill">${post.tag}</span>`;
         left.appendChild(title);
         left.appendChild(meta);
 
@@ -158,37 +113,19 @@
         const cs = post.stats || {comments:0, likes:0, views:0};
         stats.innerHTML = `<span class="stat">💬 ${cs.comments}</span><span class="stat">👍 ${cs.likes}</span><span class="stat">👀 ${cs.views}</span>`;
         right.appendChild(stats);
-        if(post.tag){
-          const tag = document.createElement('span');
-          tag.className = 'pill';
-          tag.textContent = post.tag;
-          right.appendChild(tag);
-        }
+
         a.appendChild(left);
         a.appendChild(right);
         return a;
       }
 
-      // 카테고리 판별 (제목 우선, 태그→카테고리 맵핑 보조)
       function resolveCategory(post){
-        const title = (post.title || '').toLowerCase();
-        if(title.includes('[공지]'.toLowerCase())) return 'notice';
-        if(title.includes('[생활/장보기]'.toLowerCase())) return 'life';
-        if(title.includes('[소음/배려]'.toLowerCase())) return 'noise';
-        if(title.includes('[이벤트/모임]'.toLowerCase())) return 'event';
-        if(title.includes('[자유]'.toLowerCase())) return 'free';
-        const tag = (post.tag || '').replace(/\s/g,'');
-        const MAP = { '#공지':'notice','#점검':'notice', '#모임':'event','#운동':'event','#독서':'event','#행사':'event', '#장보기':'life','#나눔':'life', '#소음':'noise','#양해글':'noise','#배려':'noise', '#잡담':'free','#사진':'free' };
-        if(MAP[tag]) return MAP[tag];
-        if(['notice','life','noise','event','free'].includes(post.category)) return post.category;
-        return 'free';
+        return post.category || 'free';
       }
 
-      // '10분 전' '3시간 전' '어제' '2일 전' → 정렬용 점수(더 큰 값 = 더 최신)
       function timeScore(t){
         const s=(t||'').trim();
         if(!s) return -1e12;
-        if(/^(방금|지금)$/.test(s)) return 1e12;
         if(/(\d+)\s*분 전/.test(s)) return 1e9 - parseInt(s)*60;
         if(/(\d+)\s*시간 전/.test(s)) return 1e8 - parseInt(s)*3600;
         if(s==='어제') return 1e7 - 24*3600;
@@ -196,39 +133,15 @@
         return -1e11;
       }
 
-      function uniqueTags(posts, category){
-        const set = new Set();
-        posts.forEach(p=>{ if(category!=='all' && resolveCategory(p)!==category) return; if(p.tag) set.add(p.tag.trim()); });
-        return ['전체 태그', ...Array.from(set).sort((a,b)=>a.localeCompare(b))];
-      }
-
-      function buildTagbar(posts, category){
-        if(!tagbar) return;
-        const tags = uniqueTags(posts, category);
-        tagbar.innerHTML='';
-        tags.forEach(t=>{
-          const b=document.createElement('button');
-          b.type='button'; b.className='tchip'+(((currentTag==='all'&&t==='전체 태그')||currentTag===t)?' active':'');
-          b.textContent=t;
-          b.addEventListener('click',()=>{ currentTag=(t==='전체 태그')?'all':t; render(); });
-          tagbar.appendChild(b);
-        });
-      }
-
       async function loadAndRender(){
         try{
-          let data;
-          if(location.protocol==='file:'){
-            data=fallbackData; // 파일 직접 열기 시 fetch 제한 가능
-          }else{
-            const res=await fetch('../../data/posts.json',{cache:'no-store'}); // C:/Users/.../making_hack/data/posts.json
-            if(!res.ok) throw new Error('HTTP '+res.status);
-            data=await res.json();
-          }
+          const res=await fetch('../data/posts.json',{cache:'no-store'});
+          if(!res.ok) throw new Error('HTTP '+res.status);
+          const data=await res.json();
           postsCache=Array.isArray(data.posts)?data.posts:[];
           render();
         }catch(e){
-          console.error(e); postsCache=fallbackData.posts; render();
+          console.error(e);
         }
       }
 
@@ -239,52 +152,49 @@
 
       function render(){
         const cat=currentCategory();
-        // 태그바 갱신
-        buildTagbar(postsCache, cat);
-        // 컨테이너 초기화
-        sections.forEach(id=>{ if(containers[id]) containers[id].innerHTML=''; });
-        // 전체: 시간 기준 최신순
-        const sorted=postsCache.slice().sort((a,b)=>timeScore(b.time)-timeScore(a.time));
-        sorted.forEach(p=>containers.all.appendChild(createItem(p)));
+        const q=(searchInput.value||'').trim().toLowerCase();
+        sections.forEach(id=>{ containers[id].innerHTML=''; });
 
-        // 카테고리 + 태그 필터링
-        if(cat!=='all'){
-          const list=sorted.filter(p=>resolveCategory(p)===cat)
-                           .filter(p=> currentTag==='all' ? true : ((p.tag||'').trim()===currentTag));
+        const sorted=postsCache
+          .slice()
+          .sort((a,b)=>timeScore(b.time)-timeScore(a.time))
+          .filter(p=>{
+            if(!q) return true;
+            return [p.title,p.author,p.tag].join(' ').toLowerCase().includes(q);
+          });
+
+        if(cat==='all'){
+          sorted.forEach(p=>containers.all.appendChild(createItem(p)));
+        }else{
+          const list=sorted.filter(p=>resolveCategory(p)===cat);
           if(list.length===0){
             const empty=document.createElement('div');
             empty.className='item';
-            empty.innerHTML='<div class="title">조건에 맞는 게시글이 없어요</div><div class="meta">태그를 변경해 보세요.</div>';
+            empty.innerHTML='<div class="title">이 카테고리에 글이 없어요</div>';
             containers[cat].appendChild(empty);
           }else{
             list.forEach(p=>containers[cat].appendChild(createItem(p)));
           }
         }
 
-        // 표시 전환
         sections.forEach(s=>{
-          containers[s].toggleAttribute('hidden', s!==cat && s!=='all');
+          const show=(cat==='all')?(s==='all'):(s===cat);
+          containers[s].toggleAttribute('hidden',!show);
         });
-        // 탭 상태
+
         tabs.forEach(t=>t.classList.toggle('active', t.getAttribute('href')==='#'+cat));
       }
 
-      // 탭 네비게이션
-      tabs.forEach(t=>t.addEventListener('click',e=>{ const href=t.getAttribute('href'); if(href&&href.startsWith('#')){ e.preventDefault(); history.pushState(null,'',href); render(); }}));
+      tabs.forEach(t=>t.addEventListener('click',e=>{
+        const href=t.getAttribute('href');
+        if(href&&href.startsWith('#')){
+          e.preventDefault();
+          history.pushState(null,'',href);
+          render();
+        }
+      }));
       window.addEventListener('hashchange', render);
-
-      const fallbackData={ posts:[
-        { id:'n1', title:'[공지] 관리사무소 점검(9/15 월) 안내', author:'관리자', time:'어제', category:'notice', tag:'#공지', stats:{comments:3, likes:18, views:520} },
-        { id:'n2', title:'[공지] 엘리베이터 보수 공지 (9/12 09:30)', author:'관리자', time:'2일 전', category:'notice', tag:'#점검', stats:{comments:6, likes:25, views:890} },
-        { id:'l1', title:'[생활/장보기] 9/12(금) 저녁 마트 같이 가실 분? 🚗', author:'유나', time:'10분 전', category:'life', tag:'#모임', stats:{comments:12, likes:34, views:201} },
-        { id:'l2', title:'[생활/장보기] 중고 아기식탁의자 나눔해요', author:'다인', time:'1시간 전', category:'life', tag:'#나눔', stats:{comments:9, likes:40, views:330} },
-        { id:'no1', title:'[소음/배려] 오늘 15–17시 공사 소음 미리 양해 부탁드려요', author:'성주', time:'1시간 전', category:'noise', tag:'#양해글', stats:{comments:8, likes:22, views:145} },
-        { id:'no2', title:'[소음/배려] 밤 10시 이후 세탁기 사용 자제 부탁드려요', author:'유건', time:'3시간 전', category:'noise', tag:'#공지', stats:{comments:4, likes:29, views:260} },
-        { id:'e1', title:'[이벤트/모임] 일요일 오전 러닝 크루 모집합니다 🏃‍♀️', author:'세민', time:'3시간 전', category:'event', tag:'#운동', stats:{comments:5, likes:41, views:389} },
-        { id:'e2', title:'[이벤트/모임] 북카페에서 토요 독서모임 해요 📚', author:'지수', time:'어제', category:'event', tag:'#독서', stats:{comments:11, likes:50, views:702} },
-        { id:'f1', title:'[자유] 단지 앞 카페 신메뉴 추천해요 ☕️', author:'로이', time:'어제', category:'free', tag:'#잡담', stats:{comments:14, likes:57, views:612} },
-        { id:'f2', title:'[자유] 반려동물 산책 모임 사진 공유합니다 🐶', author:'하림', time:'2일 전', category:'free', tag:'#사진', stats:{comments:7, likes:33, views:488} }
-      ]};
+      searchInput.addEventListener('input', render);
 
       loadAndRender();
     })();
