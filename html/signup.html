@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>오손도손 - 회원가입</title>
+  <link rel="stylesheet" href="../css/sungjoo">
+</head>
+<body>
+  <header class="header">
+    <div class="container" style="display:flex; align-items:center; justify-content:center; padding:24px 12px">
+      <span class="logo" style="font-weight:800; font-size:1.3rem">오손도손</span>
+    </div>
+  </header>
+  <main class="main-content">
+    <div class="container" style="max-width:560px; margin:0 auto">
+      <section class="signup-card" style="background:#fff; border:1px solid var(--border, rgba(0,0,0,.08)); border-radius:20px; box-shadow:0 10px 30px rgba(0,0,0,.08); padding:26px">
+        <header style="text-align:center; margin-bottom:16px">
+          <div style="font-size:42px; line-height:1; margin-bottom:10px">📝</div>
+          <h1 style="margin:0 0 6px; font-weight:600">회원가입</h1>
+          <p class="sub" style="margin:0; color:var(--muted, #64748b)">필수 정보를 입력해 주세요</p>
+        </header>
+        <form id="signupForm" autocomplete="on" novalidate style="display:grid; gap:12px">
+          <div style="display:grid; gap:8px">
+            <label for="nameInput" class="sub">이름</label>
+            <input id="nameInput" type="text" placeholder="이름" required>
+          </div>
+          <div style="display:grid; gap:8px">
+            <label for="unitInput" class="sub">호수</label>
+            <input id="unitInput" type="text" placeholder="예: 101동 101호" required>
+          </div>
+          <div style="display:grid; gap:8px">
+            <label for="phoneInput" class="sub">전화번호 (아이디)</label>
+            <input id="phoneInput" type="tel" placeholder="예: 010-1234-5678" inputmode="tel" autocomplete="tel" required>
+          </div>
+          <div style="display:grid; gap:8px">
+            <label for="signupPasswordInput" class="sub">비밀번호</label>
+            <input id="signupPasswordInput" type="password" placeholder="비밀번호" autocomplete="new-password" required>
+          </div>
+          <div id="signupError" class="sub" style="color:#dc2626; display:none"></div>
+          <button type="submit" class="btn" style="height:44px; font-weight:700">가입하기</button>
+        </form>
+        <p class="sub" style="text-align:center; margin-top:12px; color:var(--muted, #64748b)">이미 계정이 있으신가요? <a href="login.html">로그인</a></p>
+      </section>
+    </div>
+  </main>
+  <script src="../js/auth_db.js"></script>
+  <script src="../js/signup.js"></script>
+</body>
+</html>
+
+

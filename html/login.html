@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>오손도손 - 로그인</title>
+    <link rel="stylesheet" href="../css/sungjoo">
+</head>
+<body>
+    <header class="header">
+        <div class="container" style="display:flex; align-items:center; justify-content:center; padding:28px 12px">
+            <span class="logo" style="font-weight:800; font-size:1.3rem">오손도손</span>
+        </div>
+    </header>
+    <main class="main-content">
+        <div class="container login-container" style="max-width:520px; margin:0 auto">
+            <section class="login-card" style="background:#fff; border:1px solid var(--border, rgba(0,0,0,.08)); border-radius:20px; box-shadow:0 10px 30px rgba(0,0,0,.08); padding:28px 26px">
+                <header style="text-align:center; margin-bottom:18px">
+                    <div style="font-size:42px; line-height:1; margin-bottom:10px">🔒</div>
+                    <h1 style="margin:0 0 6px; font-weight:600">로그인</h1>
+                    <p class="sub" style="margin:0; color:var(--muted, #64748b)">Google 로그인처럼 간단하고 깔끔하게</p>
+                </header>
+                <form id="loginForm" class="login-form" autocomplete="on" novalidate>
+                    <div class="form-group" style="display:grid; gap:8px">
+                        <label for="userIdInput" class="sub">전화번호</label>
+                        <input type="tel" id="userIdInput" placeholder="예: 010-1234-5678" class="login-input" required inputmode="tel" autocomplete="tel">
+                    </div>
+                    <div class="form-group" style="display:grid; gap:8px; margin-top:12px">
+                        <label for="passwordInput" class="sub">비밀번호</label>
+                        <input type="password" id="passwordInput" placeholder="비밀번호" class="login-input" required autocomplete="current-password">
+                    </div>
+                    <div class="form-row" style="display:flex; justify-content:space-between; align-items:center; margin-top:10px">
+                        <label style="display:flex; align-items:center; gap:8px; font-size:.95rem; color:var(--muted, #64748b)"><input type="checkbox" id="rememberMe"> 로그인 상태 유지</label>
+                        <a href="#" class="sub" style="font-size:.95rem">비밀번호 찾기</a>
+                    </div>
+                    <div id="loginError" class="sub" style="margin-top:10px; color:#dc2626; display:none">전화번호 또는 비밀번호를 확인해 주세요.</div>
+                    <button type="submit" class="login-button" style="width:100%; margin-top:16px; height:44px; font-weight:700">로그인</button>
+                </form>
+                <div class="divider" style="height:1px; background:var(--border, rgba(0,0,0,.08)); margin:18px 0"></div>
+                <div class="actions" style="display:flex; justify-content:center">
+                    <a class="btn" href="signup.html" style="min-width:180px; text-align:center">회원가입</a>
+                </div>
+            </section>
+        </div>
+    </main>
+    <script src="js/login.js"></script>
+</body>
+</html>
