@@ -40,12 +40,9 @@ header{
 
 main{max-width:1200px; margin:24px auto; padding:0 20px; width:100%}
 
-/* 그리드 */
-.grid{display:grid; gap:16px}
-@media (min-width: 960px){
-  .grid{grid-template-columns:2fr 1fr}
-}
+/* (예전 .grid는 사용하지 않음 — grid-cards를 HTML에 포함해둠) */
 
+/* 카드 공통 (레거시 호환 — 일부 화면에서 사용될 수 있어 유지) */
 .card{background:linear-gradient(180deg, var(--panel), var(--panel-2)); border:1px solid var(--border); border-radius:var(--radius); box-shadow:var(--shadow)}
 .card h3{margin:0 0 6px; font-size:1.05rem}
 .card-header{padding:16px 16px 0 16px}
@@ -97,11 +94,6 @@ main{max-width:1200px; margin:24px auto; padding:0 20px; width:100%}
 .quick .qa{flex:1 1 200px; display:flex; align-items:center; justify-content:center; gap:10px; padding:14px; border-radius:14px; background:linear-gradient(135deg,#2e7d32,#7bbf9f); color:#0b3d2e; font-weight:800; border:0}
 .quick .qa.secondary{background:rgba(255,255,255,.06); color:var(--text); border:1px solid var(--border)}
 
-/* 사이드 */
-.side-grid{display:grid; gap:16px}
-
 /* 푸터 */
 footer{max-width:1200px; margin:32px auto; padding:0 20px 40px; color:var(--muted); font-size:.9rem}
 footer a{color:#2e7d32}
-
-

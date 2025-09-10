@@ -16,7 +16,7 @@
     .main-title{font-size:1.8rem; margin:0 0 6px}
     .main-sub{font-size:1rem; margin:0 0 12px}
 
-    /* 카드 래퍼(사진처럼 큰 카드 구획) */
+    /* 카드 래퍼(큰 카드) */
     .card-box{padding:18px; border:1px solid var(--border); border-radius:24px; background:linear-gradient(180deg, rgba(46,125,50,.05), rgba(167,215,181,.08)); box-shadow:var(--shadow); margin-bottom:18px}
     .card-box .card-box-title{font-weight:800; font-size:1.3rem; margin:0 0 6px}
     .card-box .card-box-sub{color:var(--muted); margin:0 0 10px}
@@ -46,6 +46,41 @@
     .cta-row{display:grid; grid-template-columns:1fr 1fr 1fr; gap:16px; margin-top:16px}
     .cta{display:flex; align-items:center; justify-content:center; gap:10px; padding:18px; border-radius:20px; border:1px solid var(--border); background:var(--panel-2); font-weight:800}
     .cta.primary{background:linear-gradient(135deg,var(--accent),#8fd19f); color:#0b3d2e; border-color:transparent}
+
+    /* ===== 반응형 배치: 좁을 땐 1열, 넓을 땐 2열 + 영역 재배치 ===== */
+    .grid-cards{
+      display:grid;
+      gap:18px;
+      /* 기본(모바일/태블릿): 1열, DOM 순서대로 */
+      grid-template-columns: 1fr;
+      grid-template-areas:
+        "summary"
+        "alert"
+        "preview"
+        "chat"
+        "account";
+    }
+    /* 각 카드에 영역 이름 부여 */
+    .card--summary{ grid-area: summary; }
+    .card--alert  { grid-area: alert; }
+    .card--preview{ grid-area: preview; }
+    .card--chat   { grid-area: chat; }
+    .card--account{ grid-area: account; }
+
+    /* 데스크톱(넓은 화면)
+       - 1행: Summary(좌) / Preview(우)
+       - 2행: Chat(좌) / Alert(우)
+       - 3행: Chat(좌 계속)/ Account(우)
+    */
+    @media (min-width: 1100px){
+      .grid-cards{
+        grid-template-columns: 2fr 1fr;
+        grid-template-areas:
+          "summary preview"
+          "chat    alert"
+          "chat    account";
+      }
+    }
   </style>
 </head>
 <body>
@@ -69,165 +104,161 @@
     </header>
 
     <main>
-      <div class="grid">
-        <!-- 메인 칼럼 -->
-        <section>
-          <!-- 카드 1: 우리 집 데시벨 요약 -->
-          <div class="card-box">
-            <div class="card-box-title">우리 집 데시벨 요약</div>
-            <p class="card-box-sub">오늘의 소음 현황과 최근 24시간 추세</p>
-            <div class="inner">
-              <!-- KPI들 -->
-              <div class="kpi">
-                <div class="k">
-                  <div class="label">현재 데시벨</div>
-                  <div class="value" id="kpi-now" data-db="48">48 dB</div>
-                  <div class="badge b-good">양호</div>
-                </div>
-                <div class="k">
-                  <div class="label">오늘 최고</div>
-                  <div class="value" id="kpi-peak" data-db="72">72 dB</div>
-                  <div class="badge b-warn">주의 시간대 존재</div>
-                </div>
-                <div class="k">
-                  <div class="label">야간 평균 (22–06시)</div>
-                  <div class="value" id="kpi-night" data-db="42">42 dB</div>
-                  <div class="badge b-good">기준치 이내</div>
-                </div>
+      <!-- ✅ 레이아웃 래퍼 -->
+      <div class="grid-cards">
+
+        <!-- 요약(좌상단) -->
+        <section class="card-box card--summary">
+          <div class="card-box-title">우리 집 데시벨 요약</div>
+          <p class="card-box-sub">오늘의 소음 현황과 최근 24시간 추세</p>
+          <div class="inner">
+            <div class="kpi">
+              <div class="k">
+                <div class="label">현재 데시벨</div>
+                <div class="value" id="kpi-now" data-db="48">48 dB</div>
+                <div class="badge b-good">양호</div>
               </div>
-
-              <!-- 추세 차트 -->
-              <div class="panel" style="margin-top:16px">
-                <div id="trend" class="sub" style="margin:6px 2px 8px">최근 24시간 추세 <a href="data_analysis.html#noiseChart" style="margin-left:8px">자세히</a></div>
-                <div class="spark" aria-label="시간대별 데시벨 막대">
-                  <div class="bar" style="--h:24%" data-level="good" title="00:00 · 40 dB"></div>
-                  <div class="bar" style="--h:18%" data-level="good" title="01:00 · 38 dB"></div>
-                  <div class="bar" style="--h:16%" data-level="good" title="02:00 · 37 dB"></div>
-                  <div class="bar" style="--h:18%" data-level="good"></div>
-                  <div class="bar" style="--h:22%" data-level="good"></div>
-                  <div class="bar" style="--h:30%" data-level="good"></div>
-                  <div class="bar" style="--h:45%" data-level="warn" title="07:00 · 통근 소음"></div>
-                  <div class="bar" style="--h:55%" data-level="warn"></div>
-                  <div class="bar" style="--h:42%" data-level="warn"></div>
-                  <div class="bar" style="--h:36%" data-level="good"></div>
-                  <div class="bar" style="--h:32%" data-level="good"></div>
-                  <div class="bar" style="--h:40%" data-level="good"></div>
-                  <div class="bar" style="--h:52%" data-level="warn"></div>
-                  <div class="bar" style="--h:62%" data-level="warn"></div>
-                  <div class="bar" style="--h:70%" data-level="bad" title="15:00 · 공사 소음"></div>
-                  <div class="bar" style="--h:60%" data-level="warn"></div>
-                  <div class="bar" style="--h:48%" data-level="warn"></div>
-                  <div class="bar" style="--h:38%" data-level="good"></div>
-                  <div class="bar" style="--h:34%" data-level="good"></div>
-                  <div class="bar" style="--h:30%" data-level="good"></div>
-                  <div class="bar" style="--h:26%" data-level="good"></div>
-                  <div class="bar" style="--h:22%" data-level="good"></div>
-                  <div class="bar" style="--h:20%" data-level="good"></div>
-                  <div class="bar" style="--h:18%" data-level="good"></div>
-                </div>
-                <div class="spark-legend">
-                  <span class="dot d-good"></span> 양호
-                  <span class="dot d-warn" style="margin-left:10px"></span> 주의
-                  <span class="dot d-bad" style="margin-left:10px"></span> 경고
-                </div>
+              <div class="k">
+                <div class="label">오늘 최고</div>
+                <div class="value" id="kpi-peak" data-db="72">72 dB</div>
+                <div class="badge b-warn">주의 시간대 존재</div>
               </div>
-
-              <!-- 유형 TOP3 -->
-              <div class="panel" style="margin-top:12px">
-                <div id="types" class="sub" style="margin:6px 2px 10px">소리 유형 TOP3 <a href="data_analysis.html#noiseChart" style="margin-left:8px">자세히</a></div>
-                <div class="hbars">
-                  <div class="hbar">
-                    <div class="name">말소리</div>
-                    <div class="track"><div class="fill" style="--w:68%"></div></div>
-                    <div class="val">68%</div>
-                  </div>
-                  <div class="hbar">
-                    <div class="name">TV/음향</div>
-                    <div class="track"><div class="fill" style="--w:54%"></div></div>
-                    <div class="val">54%</div>
-                  </div>
-                  <div class="hbar">
-                    <div class="name">가전 소음</div>
-                    <div class="track"><div class="fill" style="--w:37%"></div></div>
-                    <div class="val">37%</div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- 카드 2: 개인화 주의 문구 (빨강) -->
-          <div class="card-box card-danger">
-            <div class="card-box-title">개인화 주의 문구</div>
-            <p class="card-box-sub">평일 오후(15–17시)에 소음이 높아지는 경향이 있어요. 이 시간대엔 TV/음향 볼륨을 한 단계 낮추거나 창문을 닫아 보세요.</p>
-          </div>
-
-          <!-- 카드 3: 오손도손 게시판 미리보기 -->
-          <div class="card-box">
-            <div class="card-box-title">오손도손 게시판 · 미리보기</div>
-            <p class="card-box-sub">최근 업데이트 4건</p>
-            <div class="preview-list">
-              <a class="preview-item" href="board.html#notice">
-                <div>
-                  <div class="preview-title">[공지] 관리사무소 점검 안내</div>
-                  <div class="preview-meta">9/15(월) 14:00–16:00 <span class="preview-tag">#공지</span></div>
-                </div>
-                <div class="preview-meta">어제</div>
-              </a>
-              <a class="preview-item" href="board.html#life">
-                <div>
-                  <div class="preview-title">마트 같이 가실 분? 🚗</div>
-                  <div class="preview-meta">오늘 · 18:30 <span class="preview-tag">#모임</span></div>
-                </div>
-                <div class="preview-meta">10분 전</div>
-              </a>
-              <a class="preview-item" href="board.html#noise">
-                <div>
-                  <div class="preview-title">15–17시 공사 소음 양해</div>
-                  <div class="preview-meta">오늘 · 15:00 <span class="preview-tag">#양해글</span></div>
-                </div>
-                <div class="preview-meta">1시간 전</div>
-              </a>
-              <a class="preview-item" href="board.html#event">
-                <div>
-                  <div class="preview-title">러닝 크루 모집 🏃‍♀️</div>
-                  <div class="preview-meta">일요일 오전 <span class="preview-tag">#운동</span></div>
-                </div>
-                <div class="preview-meta">3시간 전</div>
-              </a>
-            </div>
-            <div class="preview-actions">
-              <a class="btn" href="board.html">전체 보기</a>
-            </div>
-          </div>
-
-          <!-- 카드 4: 도손이에게 메시지 보내기 -->
-          <div class="card-box">
-            <div class="card-box-title">도손이에게 메시지 보내기</div>
-            <p class="card-box-sub">층간소음 관련/양해글/자유 메시지</p>
-            <div class="doson">
-              <div class="chips" role="group" aria-label="빠른 선택">
-                <button class="chip-btn" data-template="층간소음 상담">층간소음 상담</button>
-                <button class="chip-btn" data-template="양해글 초안">양해글 초안</button>
-                <button class="chip-btn" data-template="기타 문의">기타 문의</button>
-              </div>
-              <textarea id="dosonMsg" placeholder="도손이에게 보낼 내용을 입력하세요. 예: 어제 밤 11시 이후로 윗집에서 의자 끄는 소리가 반복돼요."></textarea>
-              <div class="row">
-                <a class="btn" id="fillBtn">자동 완성 제안</a>
-                <a class="btn btn-primary" id="sendBtn">메시지 보내기</a>
+              <div class="k">
+                <div class="label">야간 평균 (22–06시)</div>
+                <div class="value" id="kpi-night" data-db="42">42 dB</div>
+                <div class="badge b-good">기준치 이내</div>
               </div>
             </div>
 
-            <div class="cta-row">
-              <a class="cta primary" href="index.html">📝 양해글 쓰기</a>
-              <a class="cta" href="/messages/thread.html">💬 메시지 보내기</a>
-              <a class="cta" href="board.html">📌 오손도손 게시판</a>
+            <div class="panel" style="margin-top:16px">
+              <div id="trend" class="sub" style="margin:6px 2px 8px">최근 24시간 추세 <a href="data_analysis.html#noiseChart" style="margin-left:8px">자세히</a></div>
+              <div class="spark" aria-label="시간대별 데시벨 막대">
+                <div class="bar" style="--h:24%" data-level="good" title="00:00 · 40 dB"></div>
+                <div class="bar" style="--h:18%" data-level="good" title="01:00 · 38 dB"></div>
+                <div class="bar" style="--h:16%" data-level="good" title="02:00 · 37 dB"></div>
+                <div class="bar" style="--h:18%" data-level="good"></div>
+                <div class="bar" style="--h:22%" data-level="good"></div>
+                <div class="bar" style="--h:30%" data-level="good"></div>
+                <div class="bar" style="--h:45%" data-level="warn" title="07:00 · 통근 소음"></div>
+                <div class="bar" style="--h:55%" data-level="warn"></div>
+                <div class="bar" style="--h:42%" data-level="warn"></div>
+                <div class="bar" style="--h:36%" data-level="good"></div>
+                <div class="bar" style="--h:32%" data-level="good"></div>
+                <div class="bar" style="--h:40%" data-level="good"></div>
+                <div class="bar" style="--h:52%" data-level="warn"></div>
+                <div class="bar" style="--h:62%" data-level="warn"></div>
+                <div class="bar" style="--h:70%" data-level="bad" title="15:00 · 공사 소음"></div>
+                <div class="bar" style="--h:60%" data-level="warn"></div>
+                <div class="bar" style="--h:48%" data-level="warn"></div>
+                <div class="bar" style="--h:38%" data-level="good"></div>
+                <div class="bar" style="--h:34%" data-level="good"></div>
+                <div class="bar" style="--h:30%" data-level="good"></div>
+                <div class="bar" style="--h:26%" data-level="good"></div>
+                <div class="bar" style="--h:22%" data-level="good"></div>
+                <div class="bar" style="--h:20%" data-level="good"></div>
+                <div class="bar" style="--h:18%" data-level="good"></div>
+              </div>
+              <div class="spark-legend">
+                <span class="dot d-good"></span> 양호
+                <span class="dot d-warn" style="margin-left:10px"></span> 주의
+                <span class="dot d-bad" style="margin-left:10px"></span> 경고
+              </div>
+            </div>
+
+            <div class="panel" style="margin-top:12px">
+              <div id="types" class="sub" style="margin:6px 2px 10px">소리 유형 TOP3 <a href="data_analysis.html#noiseChart" style="margin-left:8px">자세히</a></div>
+              <div class="hbars">
+                <div class="hbar">
+                  <div class="name">말소리</div>
+                  <div class="track"><div class="fill" style="--w:68%"></div></div>
+                  <div class="val">68%</div>
+                </div>
+                <div class="hbar">
+                  <div class="name">TV/음향</div>
+                  <div class="track"><div class="fill" style="--w:54%"></div></div>
+                  <div class="val">54%</div>
+                </div>
+                <div class="hbar">
+                  <div class="name">가전 소음</div>
+                  <div class="track"><div class="fill" style="--w:37%"></div></div>
+                  <div class="val">37%</div>
+                </div>
+              </div>
             </div>
           </div>
         </section>
 
-        <!-- 사이드 칼럼 -->
-        <aside class="card-box">
+        <!-- 개인화 주의 (우측 중단) -->
+        <section class="card-box card-danger card--alert">
+          <div class="card-box-title">개인화 주의 문구</div>
+          <p class="card-box-sub">평일 오후(15–17시)에 소음이 높아지는 경향이 있어요. 이 시간대엔 TV/음향 볼륨을 한 단계 낮추거나 창문을 닫아 보세요.</p>
+        </section>
+
+        <!-- 게시판 미리보기 (우측 상단) -->
+        <section class="card-box card--preview">
+          <div class="card-box-title">오손도손 게시판 · 미리보기</div>
+          <p class="card-box-sub">최근 업데이트 4건</p>
+          <div class="preview-list">
+            <a class="preview-item" href="board.html#notice">
+              <div>
+                <div class="preview-title">[공지] 관리사무소 점검 안내</div>
+                <div class="preview-meta">9/15(월) 14:00–16:00 <span class="preview-tag">#공지</span></div>
+              </div>
+              <div class="preview-meta">어제</div>
+            </a>
+            <a class="preview-item" href="board.html#life">
+              <div>
+                <div class="preview-title">마트 같이 가실 분? 🚗</div>
+                <div class="preview-meta">오늘 · 18:30 <span class="preview-tag">#모임</span></div>
+              </div>
+              <div class="preview-meta">10분 전</div>
+            </a>
+            <a class="preview-item" href="board.html#noise">
+              <div>
+                <div class="preview-title">15–17시 공사 소음 양해</div>
+                <div class="preview-meta">오늘 · 15:00 <span class="preview-tag">#양해글</span></div>
+              </div>
+              <div class="preview-meta">1시간 전</div>
+            </a>
+            <a class="preview-item" href="board.html#event">
+              <div>
+                <div class="preview-title">러닝 크루 모집 🏃‍♀️</div>
+                <div class="preview-meta">일요일 오전 <span class="preview-tag">#운동</span></div>
+              </div>
+              <div class="preview-meta">3시간 전</div>
+            </a>
+          </div>
+          <div class="preview-actions">
+            <a class="btn" href="board.html">전체 보기</a>
+          </div>
+        </section>
+
+        <!-- 도손이에게 메시지 (좌측 중·하단 전체) -->
+        <section class="card-box card--chat">
+          <div class="card-box-title">도손이에게 메시지 보내기</div>
+          <p class="card-box-sub">층간소음 관련/양해글/자유 메시지</p>
+          <div class="doson">
+            <div class="chips" role="group" aria-label="빠른 선택">
+              <button class="chip-btn" data-template="층간소음 상담">층간소음 상담</button>
+              <button class="chip-btn" data-template="양해글 초안">양해글 초안</button>
+              <button class="chip-btn" data-template="기타 문의">기타 문의</button>
+            </div>
+            <textarea id="dosonMsg" placeholder="도손이에게 보낼 내용을 입력하세요. 예: 어제 밤 11시 이후로 윗집에서 의자 끄는 소리가 반복돼요."></textarea>
+            <div class="row">
+              <a class="btn" id="fillBtn">자동 완성 제안</a>
+              <a class="btn btn-primary" id="sendBtn">메시지 보내기</a>
+            </div>
+          </div>
+
+          <div class="cta-row">
+            <a class="cta primary" href="index.html">📝 양해글 쓰기</a>
+            <a class="cta" href="/messages/thread.html">💬 메시지 보내기</a>
+            <a class="cta" href="board.html">📌 오손도손 게시판</a>
+          </div>
+        </section>
+
+        <!-- 계정 & 도움말 (우측 하단) -->
+        <aside class="card-box card--account">
           <section>
             <h3>계정 & 도움말</h3>
             <p class="sub">설정 · FAQ · 관리사무소</p>
@@ -238,6 +269,7 @@
             </div>
           </section>
         </aside>
+
       </div>
     </main>
 
@@ -245,5 +277,40 @@
       <div>※ 실제 센서·차트 데이터는 추후 <strong>Firebase</strong>와 연동하여 채워질 영역입니다. 현재 화면은 <strong>HTML/CSS 프로토타입</strong>입니다.</div>
     </footer>
   </div>
+
+  <script>
+    // 도손이 메시지: 빠른 선택 & 자동완성(샘플)
+    (function(){
+      const chips = Array.from(document.querySelectorAll('.chip-btn'));
+      const input = document.getElementById('dosonMsg');
+      const fillBtn = document.getElementById('fillBtn');
+      const sendBtn = document.getElementById('sendBtn');
+
+      const templates = {
+        '층간소음 상담': '층간소음 상담을 요청합니다. 최근 일주일 중 특히 22시 이후에 의자 끄는 소리/쿵 하는 진동이 자주 납니다. 측정값과 대응 방법을 안내해 주세요.',
+        '양해글 초안': '안녕하세요. 오늘(__) __시~__시 사이 집 수리에 따른 소음이 예상됩니다. 최대한 짧고 조용하게 진행하겠습니다. 양해 부탁드립니다.',
+        '기타 문의': '안녕하세요. 오손도손 관련 문의가 있어 메시지 드립니다: '
+      };
+
+      chips.forEach(c=>c.addEventListener('click',()=>{
+        chips.forEach(x=>x.classList.remove('active'));
+        c.classList.add('active');
+        const key=c.dataset.template;
+        input.placeholder = templates[key] || input.placeholder;
+      }));
+
+      fillBtn?.addEventListener('click',()=>{
+        const active = document.querySelector('.chip-btn.active');
+        if(active){ input.value = templates[active.dataset.template] || ''; }
+      });
+
+      sendBtn?.addEventListener('click',()=>{
+        sendBtn.textContent = '보냈어요!';
+        setTimeout(()=>{ sendBtn.textContent='메시지 보내기'; }, 1500);
+        input.value='';
+        chips.forEach(x=>x.classList.remove('active'));
+      });
+    })();
+  </script>
 </body>
 </html>
