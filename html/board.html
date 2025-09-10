@@ -1,0 +1,462 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>오손도손 · 게시판</title>
+  <link rel="stylesheet" href="../css/home.css" />
+  <style>
+    *{box-sizing:border-box}
+    /* 레이아웃: 홈과 동일 변수 사용 */
+    main{max-width:1100px; margin:24px auto; padding:0 20px}
+
+    /* 상단 바 */
+    .toolbar{display:grid; grid-template-columns:1fr auto; gap:12px; align-items:center}
+    .search{display:flex; gap:8px; align-items:center; background:var(--panel); border:1px solid var(--border); border-radius:14px; padding:10px 12px}
+    .search input{flex:1; background:transparent; border:0; outline:none; color:inherit}
+    .filters{display:flex; gap:8px; flex-wrap:wrap}
+
+    .chip{display:inline-flex; align-items:center; gap:8px; padding:8px 12px; border-radius:999px; border:1px solid var(--border); background:var(--panel-2); color:var(--muted); cursor:pointer}
+    .chip.active{background:linear-gradient(135deg, rgba(46,125,50,.16), rgba(167,215,181,.08)); color:var(--text)}
+
+    /* 카테고리 탭 */
+    .tabs{display:flex; gap:8px; flex-wrap:wrap; margin:16px 0}
+    .tab{padding:10px 14px; border-radius:999px; border:1px solid var(--border); background:var(--panel-2); color:var(--muted); font-weight:600}
+    .tab.active{background:linear-gradient(135deg,var(--accent),#7bbf9f); color:#0b3d2e; border-color:transparent}
+
+    /* 리스트 */
+    .list{display:grid; gap:10px}
+    .item{display:grid; grid-template-columns:1fr auto; gap:12px; padding:14px; background:linear-gradient(180deg,var(--panel),var(--panel-2)); border:1px solid var(--border); border-radius:16px; box-shadow:var(--shadow)}
+    .item:hover{outline:1px solid rgba(46,125,50,.25)}
+    .title{font-weight:800}
+    .meta{display:flex; gap:10px; color:var(--muted); font-size:.9rem; margin-top:6px}
+    .meta .pill{display:inline-flex; align-items:center; gap:6px; padding:4px 8px; border-radius:999px; border:1px solid var(--border); background:var(--panel-2)}
+    .right{display:flex; flex-direction:column; align-items:flex-end; gap:8px}
+    .stats{display:flex; gap:10px; color:var(--muted)}
+    .stat{display:inline-flex; align-items:center; gap:6px}
+
+    /* 공지 배너 */
+    .banner{display:flex; justify-content:space-between; align-items:center; gap:12px; padding:16px; border-radius:16px; background:linear-gradient(90deg, rgba(46,125,50,.14), rgba(167,215,181,.08)); border:1px solid var(--border); margin:14px 0}
+    .banner .title{font-weight:800}
+
+    /* 하단 페이징 */
+    .paging{display:flex; justify-content:center; gap:8px; margin:18px 0}
+    .page{padding:8px 12px; border-radius:10px; border:1px solid var(--border); background:var(--panel-2)}
+    .page.active{background:linear-gradient(135deg,var(--accent),#7bbf9f); color:#0b3d2e; border-color:transparent}
+
+    /* 플로팅 작성 버튼 */
+    .fab{position:fixed; right:20px; bottom:20px; padding:14px 16px; border-radius:16px; background:linear-gradient(135deg,var(--accent),#7bbf9f); color:#0b3d2e; font-weight:900; border:0; box-shadow:var(--shadow)}
+
+    /* 토스트/알림 (단어 필터 안내) */
+    .toast{position:fixed; left:50%; transform:translateX(-50%); bottom:88px; background:var(--panel); color:var(--text); padding:10px 14px; border-radius:10px; border:1px solid var(--border); box-shadow:var(--shadow)}
+
+    footer{max-width:1100px; margin:24px auto 40px; padding:0 20px; color:var(--muted); font-size:.9rem}
+  </style>
+</head>
+<body>
+  <header>
+    <div class="header-inner">
+      <div class="brand">
+        <div class="brand-badge"><svg viewBox="0 0 24 24"><path d="M12 3a9 9 0 100 18 9 9 0 000-18Zm0 3.5a1.25 1.25 0 110 2.5 1.25 1.25 0 010-2.5Zm0 4.25a.75.75 0 01.75.75v6.25a.75.75 0 01-1.5 0V11.5a.75.75 0 01.75-.75Z"/></svg></div>
+        <div>오손도손 <span style="color:var(--muted); font-weight:600">게시판</span></div>
+      </div>
+      <div class="spacer"></div>
+      <nav class="top-actions" aria-label="상단 내비">
+        <a class="btn" href="home.html">홈</a>
+        <a class="btn" href="/stats/">통계</a>
+        <a class="btn" href="/settings/">설정</a>
+        <a class="btn btn-primary" href="/messages/thread.html">메시지</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <!-- 검색/필터 바 -->
+    <div class="toolbar">
+      <label class="search" aria-label="게시글 검색">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" style="opacity:.7"><path d="M10 2a8 8 0 105.293 14.293l4.707 4.707 1.414-1.414-4.707-4.707A8 8 0 0010 2zm0 2a6 6 0 110 12 6 6 0 010-12z"/></svg>
+        <input placeholder="검색: 제목·내용·작성자" aria-label="검색어 입력" />
+      </label>
+      <div class="filters">
+        <span class="chip active">최신순</span>
+        <span class="chip">댓글많은순</span>
+        <span class="chip">좋아요순</span>
+      </div>
+    </div>
+
+    <!-- 카테고리 탭 -->
+    <div class="tabs" role="tablist" aria-label="카테고리">
+      <a class="tab active" href="#all">전체</a>
+      <a class="tab" href="#notice">공지</a>
+      <a class="tab" href="#life">생활/장보기</a>
+      <a class="tab" href="#noise">소음/배려</a>
+      <a class="tab" href="#event">이벤트/모임</a>
+      <a class="tab" href="#free">자유</a>
+    </div>
+
+    <!-- 공지 배너 -->
+    <div class="banner">
+      <div>
+        <div class="title">단어 필터링 안내</div>
+        <div class="sub" style="color:var(--muted)">비속어/비방 키워드는 자동 차단됩니다. 모두가 편한 커뮤니티를 함께 만들어요 😊</div>
+      </div>
+      <a class="btn" href="/settings/faq.html">자세히</a>
+    </div>
+
+    <!-- 리스트: 전체 -->
+    <div id="all" class="list" aria-label="전체 게시글">
+      <a class="item" href="/board/post.html">
+        <div>
+          <div class="title">[공지] 관리사무소 점검(9/15 월) 안내</div>
+          <div class="meta">
+            <span>관리자</span>
+            <span>·</span>
+            <span>어제</span>
+            <span class="pill">공지</span>
+          </div>
+        </div>
+        <div class="right">
+          <div class="stats">
+            <span class="stat">💬 3</span>
+            <span class="stat">👍 18</span>
+            <span class="stat">👀 520</span>
+          </div>
+          <span class="pill">#공지</span>
+        </div>
+      </a>
+      <a class="item" href="/board/post.html">
+        <div>
+          <div class="title">[생활/장보기] 9/12(금) 저녁 마트 같이 가실 분? 🚗</div>
+          <div class="meta">
+            <span>유나</span>
+            <span>·</span>
+            <span>10분 전</span>
+            <span class="pill">생활/장보기</span>
+          </div>
+        </div>
+        <div class="right">
+          <div class="stats">
+            <span class="stat">💬 12</span>
+            <span class="stat">👍 34</span>
+            <span class="stat">👀 201</span>
+          </div>
+          <span class="pill">#모임</span>
+        </div>
+      </a>
+      <a class="item" href="/board/post.html">
+        <div>
+          <div class="title">[소음/배려] 오늘 15–17시 공사 소음 미리 양해 부탁드려요</div>
+          <div class="meta">
+            <span>성주</span>
+            <span>·</span>
+            <span>1시간 전</span>
+            <span class="pill">소음/배려</span>
+          </div>
+        </div>
+        <div class="right">
+          <div class="stats">
+            <span class="stat">💬 8</span>
+            <span class="stat">👍 22</span>
+            <span class="stat">👀 145</span>
+          </div>
+          <span class="pill">#양해글</span>
+        </div>
+      </a>
+      <a class="item" href="/board/post.html">
+        <div>
+          <div class="title">[이벤트/모임] 일요일 오전 러닝 크루 모집합니다 🏃‍♀️</div>
+          <div class="meta">
+            <span>세민</span>
+            <span>·</span>
+            <span>3시간 전</span>
+            <span class="pill">이벤트/모임</span>
+          </div>
+        </div>
+        <div class="right">
+          <div class="stats">
+            <span class="stat">💬 5</span>
+            <span class="stat">👍 41</span>
+            <span class="stat">👀 389</span>
+          </div>
+          <span class="pill">#운동</span>
+        </div>
+      </a>
+      <a class="item" href="/board/post.html">
+        <div>
+          <div class="title">[자유] 단지 앞 카페 신메뉴 추천해요 ☕️</div>
+          <div class="meta">
+            <span>로이</span>
+            <span>·</span>
+            <span>어제</span>
+            <span class="pill">자유</span>
+          </div>
+        </div>
+        <div class="right">
+          <div class="stats">
+            <span class="stat">💬 14</span>
+            <span class="stat">👍 57</span>
+            <span class="stat">👀 612</span>
+          </div>
+          <span class="pill">#잡담</span>
+        </div>
+      </a>
+    </div>
+
+    <!-- 공지 -->
+    <div id="notice" class="list" aria-label="공지" hidden>
+      <a class="item" href="/board/post.html">
+        <div>
+          <div class="title">[공지] 관리사무소 점검(9/15 월) 안내</div>
+          <div class="meta">
+            <span>관리자</span>
+            <span>·</span>
+            <span>어제</span>
+            <span class="pill">공지</span>
+          </div>
+        </div>
+        <div class="right">
+          <div class="stats">
+            <span class="stat">💬 3</span>
+            <span class="stat">👍 18</span>
+            <span class="stat">👀 520</span>
+          </div>
+          <span class="pill">#공지</span>
+        </div>
+      </a>
+      <a class="item" href="/board/post.html">
+        <div>
+          <div class="title">[공지] 엘리베이터 보수 공지 (9/12 09:30)</div>
+          <div class="meta">
+            <span>관리자</span>
+            <span>·</span>
+            <span>2일 전</span>
+            <span class="pill">공지</span>
+          </div>
+        </div>
+        <div class="right">
+          <div class="stats">
+            <span class="stat">💬 6</span>
+            <span class="stat">👍 25</span>
+            <span class="stat">👀 890</span>
+          </div>
+          <span class="pill">#점검</span>
+        </div>
+      </a>
+    </div>
+
+    <!-- 생활/장보기 -->
+    <div id="life" class="list" aria-label="생활/장보기" hidden>
+      <a class="item" href="/board/post.html">
+        <div>
+          <div class="title">[생활/장보기] 9/12(금) 저녁 마트 같이 가실 분? 🚗</div>
+          <div class="meta">
+            <span>유나</span>
+            <span>·</span>
+            <span>10분 전</span>
+            <span class="pill">생활/장보기</span>
+          </div>
+        </div>
+        <div class="right">
+          <div class="stats">
+            <span class="stat">💬 12</span>
+            <span class="stat">👍 34</span>
+            <span class="stat">👀 201</span>
+          </div>
+          <span class="pill">#모임</span>
+        </div>
+      </a>
+      <a class="item" href="/board/post.html">
+        <div>
+          <div class="title">[생활/장보기] 중고 아기식탁의자 나눔해요</div>
+          <div class="meta">
+            <span>다인</span>
+            <span>·</span>
+            <span>1시간 전</span>
+            <span class="pill">생활/장보기</span>
+          </div>
+        </div>
+        <div class="right">
+          <div class="stats">
+            <span class="stat">💬 9</span>
+            <span class="stat">👍 40</span>
+            <span class="stat">👀 330</span>
+          </div>
+          <span class="pill">#나눔</span>
+        </div>
+      </a>
+    </div>
+
+    <!-- 소음/배려 -->
+    <div id="noise" class="list" aria-label="소음/배려" hidden>
+      <a class="item" href="/board/post.html">
+        <div>
+          <div class="title">[소음/배려] 오늘 15–17시 공사 소음 미리 양해 부탁드려요</div>
+          <div class="meta">
+            <span>성주</span>
+            <span>·</span>
+            <span>1시간 전</span>
+            <span class="pill">소음/배려</span>
+          </div>
+        </div>
+        <div class="right">
+          <div class="stats">
+            <span class="stat">💬 8</span>
+            <span class="stat">👍 22</span>
+            <span class="stat">👀 145</span>
+          </div>
+          <span class="pill">#양해글</span>
+        </div>
+      </a>
+      <a class="item" href="/board/post.html">
+        <div>
+          <div class="title">[소음/배려] 밤 10시 이후 세탁기 사용 자제 부탁드려요</div>
+          <div class="meta">
+            <span>유건</span>
+            <span>·</span>
+            <span>3시간 전</span>
+            <span class="pill">소음/배려</span>
+          </div>
+        </div>
+        <div class="right">
+          <div class="stats">
+            <span class="stat">💬 4</span>
+            <span class="stat">👍 29</span>
+            <span class="stat">👀 260</span>
+          </div>
+          <span class="pill">#공지</span>
+        </div>
+      </a>
+    </div>
+
+    <!-- 이벤트/모임 -->
+    <div id="event" class="list" aria-label="이벤트/모임" hidden>
+      <a class="item" href="/board/post.html">
+        <div>
+          <div class="title">[이벤트/모임] 일요일 오전 러닝 크루 모집합니다 🏃‍♀️</div>
+          <div class="meta">
+            <span>세민</span>
+            <span>·</span>
+            <span>3시간 전</span>
+            <span class="pill">이벤트/모임</span>
+          </div>
+        </div>
+        <div class="right">
+          <div class="stats">
+            <span class="stat">💬 5</span>
+            <span class="stat">👍 41</span>
+            <span class="stat">👀 389</span>
+          </div>
+          <span class="pill">#운동</span>
+        </div>
+      </a>
+      <a class="item" href="/board/post.html">
+        <div>
+          <div class="title">[이벤트/모임] 북카페에서 토요 독서모임 해요 📚</div>
+          <div class="meta">
+            <span>지수</span>
+            <span>·</span>
+            <span>어제</span>
+            <span class="pill">이벤트/모임</span>
+          </div>
+        </div>
+        <div class="right">
+          <div class="stats">
+            <span class="stat">💬 11</span>
+            <span class="stat">👍 50</span>
+            <span class="stat">👀 702</span>
+          </div>
+          <span class="pill">#독서</span>
+        </div>
+      </a>
+    </div>
+
+    <!-- 자유 -->
+    <div id="free" class="list" aria-label="자유" hidden>
+      <a class="item" href="/board/post.html">
+        <div>
+          <div class="title">[자유] 단지 앞 카페 신메뉴 추천해요 ☕️</div>
+          <div class="meta">
+            <span>로이</span>
+            <span>·</span>
+            <span>어제</span>
+            <span class="pill">자유</span>
+          </div>
+        </div>
+        <div class="right">
+          <div class="stats">
+            <span class="stat">💬 14</span>
+            <span class="stat">👍 57</span>
+            <span class="stat">👀 612</span>
+          </div>
+          <span class="pill">#잡담</span>
+        </div>
+      </a>
+      <a class="item" href="/board/post.html">
+        <div>
+          <div class="title">[자유] 반려동물 산책 모임 사진 공유합니다 🐶</div>
+          <div class="meta">
+            <span>하림</span>
+            <span>·</span>
+            <span>2일 전</span>
+            <span class="pill">자유</span>
+          </div>
+        </div>
+        <div class="right">
+          <div class="stats">
+            <span class="stat">💬 7</span>
+            <span class="stat">👍 33</span>
+            <span class="stat">👀 488</span>
+          </div>
+          <span class="pill">#사진</span>
+        </div>
+      </a>
+    </div>
+
+    <!-- 페이징 -->
+    <div class="paging">
+      <span class="page">이전</span>
+      <span class="page active">1</span>
+      <span class="page">2</span>
+      <span class="page">3</span>
+      <span class="page">다음</span>
+    </div>
+  </main>
+
+  <a class="fab" href="index.html">📝 글쓰기</a>
+  <div class="toast">단어 필터: 비속어 자동 차단</div>
+
+  <footer>
+    <div>※ 데이터 연동은 추후 <strong>Firebase</strong> 컬렉션(예: <code>posts</code>, <code>comments</code>, <code>profiles</code>)로 교체합니다. 현재 화면은 <strong>HTML/CSS 프로토타입</strong>입니다.</div>
+  </footer>
+  <script>
+    (function(){
+      const sections = ['all','notice','life','noise','event','free'];
+      const tabs = Array.from(document.querySelectorAll('.tabs .tab'));
+      function show(target){
+        const id = target && sections.includes(target) ? target : 'all';
+        sections.forEach(s => {
+          const el = document.getElementById(s);
+          if(!el) return;
+          if(s === id){ el.removeAttribute('hidden'); }
+          else{ el.setAttribute('hidden',''); }
+        });
+        tabs.forEach(t => t.classList.toggle('active', t.getAttribute('href') === '#' + id));
+      }
+      function fromHash(){
+        const h = (location.hash || '#all').replace('#','');
+        show(h);
+      }
+      tabs.forEach(t => t.addEventListener('click', e => {
+        const href = t.getAttribute('href');
+        if(href && href.startsWith('#')){
+          e.preventDefault();
+          history.pushState(null,'',href);
+          fromHash();
+        }
+      }));
+      window.addEventListener('hashchange', fromHash);
+      fromHash();
+    })();
+  </script>
+</body>
+</html>
