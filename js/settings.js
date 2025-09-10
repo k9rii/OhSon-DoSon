@@ -30,5 +30,5 @@ function toggleFaq() {
 }
 
 function showOfficeContact() { 
-    alert("관리사무소 연락처:\n031-123-4567"); 
+    alert("관리사무소 연락처:\n031-123-4560"); 
 }

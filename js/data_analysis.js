@@ -1,4 +1,4 @@
-// Firebase 초기화 (이 코드는 HTML 파일의 <head>에 있어야 합니다)
+//Firebase 초기화 (이 코드는 HTML 파일의 <head>에 있어야 합니다)
 const db = firebase.firestore();
 
 // 로그인 상태 확인 및 페이지 로딩

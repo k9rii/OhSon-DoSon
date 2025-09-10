@@ -7,6 +7,6 @@ document.getElementById('loginForm').addEventListener('submit', function(event) 
         sessionStorage.setItem('osondoson_user_id', userId);
         window.location.href = 'data_analysis.html'; 
     } else {
-        alert("아이디와 비밀번호를 모두 입력해주세요.");
+        alert("아이디, 비밀번호를 모두 입력해주세요.");
     }
 });
