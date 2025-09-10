@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>오손도손 - 설정 & 계정 관리</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <header class="header" id="main-header"></header>    
+    <main class="main-content">
+        <div class="container">
+            <h1>⚙️ 설정 / 계정 관리</h1>
+            <h2>내 정보</h2>
+            <ul class="settings-menu">
+                <li><span>프로필 수정</span></li>
+                <li><span>알림 설정</span></li>
+            </ul>
+            <h2>고객 지원</h2>
+            <ul class="settings-menu">
+                <li onclick="toggleFaq()"><span>자주 묻는 질문 (FAQ)</span></li>
+                <li onclick="showOfficeContact()"><span>관리사무소 연락처</span></li>
+            </ul>
+            <div id="faq-section" style="display: none; margin-top: 20px;">
+                 <details class="faq-item"><summary>Q. '오손'과 '도손'은 무슨 뜻인가요?</summary><p>'오손'은 '우리집', '도손'은 '이웃집'을 의미하는 친근한 명칭입니다.</p></details>
+                 <details class="faq-item"><summary>Q. 제 메시지가 이웃에게 어떻게 전달되나요?</summary><p>LLM으로 필터링 후, 부적절한 표현이 있다면 순화하여 이웃에게 전달합니다.</p></details>
+            </div>
+            <h2>계정</h2>
+             <ul class="settings-menu">
+                <li id="logoutButtonFromMenu"><span>로그아웃</span></li>
+            </ul>
+        </div>
+    </main>
+    <script src="js/settings.js"></script>
+</body>
+</html>
