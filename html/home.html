@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>오손도손 · 대시보드</title>
+  <title>오손도손</title>
   <link rel="stylesheet" href="../css/home.css" />
   <style>
     /* 패널로만 섹션 구획 */
@@ -57,28 +57,24 @@
         "summary"
         "alert"
         "preview"
-        "chat"
         "account";
     }
     /* 각 카드에 영역 이름 부여 */
     .card--summary{ grid-area: summary; }
     .card--alert  { grid-area: alert; }
     .card--preview{ grid-area: preview; }
-    .card--chat   { grid-area: chat; }
     .card--account{ grid-area: account; }
 
     /* 데스크톱(넓은 화면)
-       - 1행: Summary(좌) / Preview(우)
-       - 2행: Chat(좌) / Alert(우)
-       - 3행: Chat(좌 계속)/ Account(우)
+       - 1행: Summary(좌) / Alert(우)
+       - 2행: Preview(좌) / Account(우)
     */
     @media (min-width: 1100px){
       .grid-cards{
         grid-template-columns: 2fr 1fr;
         grid-template-areas:
-          "summary preview"
-          "chat    alert"
-          "chat    account";
+          "summary alert"
+          "preview account";
       }
     }
   </style>
@@ -91,19 +87,21 @@
           <div class="brand-badge" aria-hidden="true">
             <svg viewBox="0 0 24 24"><path d="M12 3a9 9 0 100 18 9 9 0 000-18Zm0 3.5a1.25 1.25 0 110 2.5 1.25 1.25 0 010-2.5Zm0 4.25a.75.75 0 01.75.75v6.25a.75.75 0 01-1.5 0V11.5a.75.75 0 01.75-.75Z"/></svg>
           </div>
-          <div>오손도손 <span class="sub">대시보드</span></div>
+          <div>오손도손            <span class="sub">따뜻한 이웃, 행복한 우리</span></div>
         </div>
         <div class="spacer"></div>
-        <nav class="top-actions" aria-label="상단 내비게이션">
+        <nav class="top-actions">
+          <a class="btn" href="home.html">홈</a>
           <a class="btn" href="board.html">게시판</a>
-          <a class="btn" href="data_analysis.html">통계</a>
-          <a class="btn" href="setteings.html">설정</a>
-          <a class="btn btn-primary" href="/messages/thread.html">메시지</a>
+          <a class="btn" href="settings.html">설정</a>
+          <a id="messageLink" class="btn btn-primary" href="#">메시지</a>
         </nav>
       </div>
     </header>
 
     <main>
+      <div id="userBanner" class="card-box" style="margin-bottom:20px"></div>
+      
       <!-- ✅ 레이아웃 래퍼 -->
       <div class="grid-cards">
 
@@ -165,26 +163,6 @@
               </div>
             </div>
 
-            <div class="panel" style="margin-top:12px">
-              <div id="types" class="sub" style="margin:6px 2px 10px">소리 유형 TOP3 <a href="data_analysis.html#noiseChart" style="margin-left:8px">자세히</a></div>
-              <div class="hbars">
-                <div class="hbar">
-                  <div class="name">말소리</div>
-                  <div class="track"><div class="fill" style="--w:68%"></div></div>
-                  <div class="val">68%</div>
-                </div>
-                <div class="hbar">
-                  <div class="name">TV/음향</div>
-                  <div class="track"><div class="fill" style="--w:54%"></div></div>
-                  <div class="val">54%</div>
-                </div>
-                <div class="hbar">
-                  <div class="name">가전 소음</div>
-                  <div class="track"><div class="fill" style="--w:37%"></div></div>
-                  <div class="val">37%</div>
-                </div>
-              </div>
-            </div>
           </div>
         </section>
 
@@ -233,29 +211,6 @@
           </div>
         </section>
 
-        <!-- 도손이에게 메시지 (좌측 중·하단 전체) -->
-        <section class="card-box card--chat">
-          <div class="card-box-title">도손이에게 메시지 보내기</div>
-          <p class="card-box-sub">층간소음 관련/양해글/자유 메시지</p>
-          <div class="doson">
-            <div class="chips" role="group" aria-label="빠른 선택">
-              <button class="chip-btn" data-template="층간소음 상담">층간소음 상담</button>
-              <button class="chip-btn" data-template="양해글 초안">양해글 초안</button>
-              <button class="chip-btn" data-template="기타 문의">기타 문의</button>
-            </div>
-            <textarea id="dosonMsg" placeholder="도손이에게 보낼 내용을 입력하세요. 예: 어제 밤 11시 이후로 윗집에서 의자 끄는 소리가 반복돼요."></textarea>
-            <div class="row">
-              <a class="btn" id="fillBtn">자동 완성 제안</a>
-              <a class="btn btn-primary" id="sendBtn">메시지 보내기</a>
-            </div>
-          </div>
-
-          <div class="cta-row">
-            <a class="cta primary" href="index.html">📝 양해글 쓰기</a>
-            <a class="cta" href="/messages/thread.html">💬 메시지 보내기</a>
-            <a class="cta" href="board.html">📌 오손도손 게시판</a>
-          </div>
-        </section>
 
         <!-- 계정 & 도움말 (우측 하단) -->
         <aside class="card-box card--account">
@@ -263,9 +218,9 @@
             <h3>계정 & 도움말</h3>
             <p class="sub">설정 · FAQ · 관리사무소</p>
             <div class="row">
-              <a class="btn" href="setteings.html">프로필</a>
+              <a class="btn" href="settings.html">프로필</a>
               <a class="btn" href="settings/faq.html">자주 묻는 질문</a>
-              <a class="btn" href="setteings.html">관리사무소 연락</a>
+              <a class="btn" href="settings.html">관리사무소 연락</a>
             </div>
           </section>
         </aside>
@@ -277,40 +232,32 @@
       <div>※ 실제 센서·차트 데이터는 추후 <strong>Firebase</strong>와 연동하여 채워질 영역입니다. 현재 화면은 <strong>HTML/CSS 프로토타입</strong>입니다.</div>
     </footer>
   </div>
-
+  
   <script>
-    // 도손이 메시지: 빠른 선택 & 자동완성(샘플)
-    (function(){
-      const chips = Array.from(document.querySelectorAll('.chip-btn'));
-      const input = document.getElementById('dosonMsg');
-      const fillBtn = document.getElementById('fillBtn');
-      const sendBtn = document.getElementById('sendBtn');
+    document.addEventListener("DOMContentLoaded", () => {
+      const name = sessionStorage.getItem("osondoson_user_name");
+      const unit = sessionStorage.getItem("osondoson_user_unit");
+      if(!name || !unit){
+        // 로그인 안 한 상태면 로그인 화면으로 강제 이동
+        window.location.href = "login.html";
+        return;
+      }
 
-      const templates = {
-        '층간소음 상담': '층간소음 상담을 요청합니다. 최근 일주일 중 특히 22시 이후에 의자 끄는 소리/쿵 하는 진동이 자주 납니다. 측정값과 대응 방법을 안내해 주세요.',
-        '양해글 초안': '안녕하세요. 오늘(__) __시~__시 사이 집 수리에 따른 소음이 예상됩니다. 최대한 짧고 조용하게 진행하겠습니다. 양해 부탁드립니다.',
-        '기타 문의': '안녕하세요. 오손도손 관련 문의가 있어 메시지 드립니다: '
-      };
+      // 로그인 된 경우 userBanner 표시
+      const banner = document.getElementById("userBanner");
+      banner.innerHTML = `
+        <div class="card-box-title">우리집</div>
+        <p class="card-box-sub">${name} · ${unit}</p>
+      `;
 
-      chips.forEach(c=>c.addEventListener('click',()=>{
-        chips.forEach(x=>x.classList.remove('active'));
-        c.classList.add('active');
-        const key=c.dataset.template;
-        input.placeholder = templates[key] || input.placeholder;
-      }));
-
-      fillBtn?.addEventListener('click',()=>{
-        const active = document.querySelector('.chip-btn.active');
-        if(active){ input.value = templates[active.dataset.template] || ''; }
-      });
-
-      sendBtn?.addEventListener('click',()=>{
-        sendBtn.textContent = '보냈어요!';
-        setTimeout(()=>{ sendBtn.textContent='메시지 보내기'; }, 1500);
-        input.value='';
-        chips.forEach(x=>x.classList.remove('active'));
-      });
-    })();
+      // ✅ [추가된 부분] 메시지 버튼의 링크를 동적으로 설정합니다.
+      const messageLink = document.getElementById("messageLink");
+      if (messageLink) {
+        // sessionStorage에 저장된 unit(예: "113동 1702호")을 가져와 URL 파라미터로 추가
+        messageLink.href = `message.html?userId=${unit}`;
+      }
+    });
   </script>
+
 </body>
 </html>

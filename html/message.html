@@ -1,0 +1,409 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>오손도손 메시지함</title>
+  <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
+  <style>
+    :root{
+      --bg:#f4f7f4;
+      --panel:#ffffff;
+      --panel-2:#f8fbf8;
+      --accent:#2e7d32;
+      --good:#2e7d32;
+      --warn:#f59e0b;
+      --bad:#ef4444;
+      --text:#0f172a;
+      --muted:#475569;
+      --border:rgba(15,23,42,.06);
+      --radius:14px;
+      --shadow:0 10px 30px rgba(2,6,23,.08);
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%;}
+    body{
+      margin:0;
+      font-family: Pretendard, "Noto Sans KR", system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+      background:var(--bg);
+      color:var(--text);
+      display:flex;
+      justify-content:center;
+      /* [수정 1] 잘림 현상 해결을 위해 상단 정렬(flex-start)로 변경 */
+      align-items:flex-start;
+      min-height:100vh;
+      /* [수정 1] 스크롤을 고려하여 상하단 여백 조정 */
+      padding:3rem 1rem 4rem;
+    }
+
+    .main-panel{ 
+      max-width:980px;
+      width:100%;
+      background:var(--panel);
+      border:1px solid var(--border);
+      border-radius:18px;
+      box-shadow:var(--shadow);
+      padding:2rem;
+    }
+    .panel-title{font-size:1.8rem;margin:0 0 .25rem;text-align:center;color:var(--accent);font-weight:800}
+    .panel-subtitle{font-size:.98rem;text-align:center;color:var(--muted);margin-bottom:1.25rem}
+    .user-address{ text-align:center;color:var(--muted);margin-bottom:1.75rem }
+    .user-address span{ font-family:monospace; font-weight:700; color:var(--text); background:var(--panel-2); padding:6px 10px; border-radius:10px; border:1px solid var(--border) }
+
+    .layout{
+      display:grid;
+      /* [수정 2] 왼쪽 쏠림 현상 해결을 위해 1단(1fr) 레이아웃으로 변경 */
+      grid-template-columns: 1fr;
+      gap:1.25rem;
+    }
+
+    /* 좁은 화면에서는 레이아웃 변경이 필요 없으므로 미디어 쿼리 삭제 또는 주석 처리 */
+    /* @media (max-width:920px){
+      .layout{ grid-template-columns: 1fr; }
+    } */
+
+    .card{ background:var(--panel-2); border-radius:12px; padding:1rem; border:1px solid var(--border)}
+
+    .sender-form{ display:flex; flex-direction:column; gap:.9rem }
+    .form-group{ display:flex; flex-direction:column; gap:.4rem }
+    .form-label{ font-size:.92rem; color:var(--muted); font-weight:700 }
+    .form-input, textarea.form-input{ width:100%; border:1px solid var(--border); border-radius:10px; padding:.7rem .9rem; background:transparent; font-size:1rem }
+    .form-input:focus{ outline:none; box-shadow:0 0 0 4px rgba(46,125,50,.08); border-color:var(--accent) }
+
+    #messageButtons{ display:flex; flex-direction:column; gap:.6rem }
+    .preset-btn{ text-align:left; padding:.68rem .85rem; border-radius:10px; border:1px solid var(--border); background:white; font-weight:700; cursor:pointer; box-shadow:0 2px 6px rgba(2,6,23,.03) }
+    .preset-btn:hover{ transform:translateY(-3px); box-shadow:var(--shadow); border-color:rgba(46,125,50,.15) }
+
+    .btn-primary{ margin-top:.4rem; padding:.72rem .9rem; border-radius:10px; background:var(--accent); color:white; font-weight:800; border:none; cursor:pointer }
+    .btn-primary:active{ transform:translateY(1px) }
+
+    .feedback-box{ background:rgba(46,125,50,.08); color:var(--good); padding:.7rem .9rem; border-radius:10px; font-weight:700; display:flex; align-items:center; gap:.6rem }
+    .feedback-box.hidden{ display:none }
+
+    .inbox-section{ display:flex; flex-direction:column; gap:.8rem }
+    .inbox-title{ font-size:1.1rem; margin:0; font-weight:800; color:var(--text) }
+    #inbox{ display:flex; flex-direction:column; gap:.8rem; max-height:60vh; overflow:auto; padding-right:.5rem }
+    #inboxPlaceholder{ text-align:center; color:var(--muted); padding:2rem 1rem }
+
+    .message-card{ background:white; border-radius:10px; border:1px solid var(--border); padding:1rem; box-shadow:0 6px 18px rgba(2,6,23,.03) }
+    .message-card .header{ display:flex; justify-content:space-between; align-items:center; font-size:.86rem; color:var(--muted); font-weight:800; margin-bottom:.35rem }
+    .message-card .content{ font-size:1rem; color:var(--text); margin-bottom:.5rem; white-space:pre-wrap }
+    .message-card .meta{ font-size:.8rem; color:var(--muted); margin-bottom:.6rem }
+    
+    .delete-btn {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--muted);
+      padding: .2rem .5rem;
+      border-radius: 6px;
+      font-size: .75rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all .2s;
+    }
+    .delete-btn:hover {
+      background: var(--bad);
+      color: white;
+      border-color: var(--bad);
+    }
+
+    .reply-actions{ display:grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap:.5rem }
+    .quick-reply{ padding:.5rem .6rem; border-radius:8px; border:1px solid var(--border); background:var(--panel-2); font-weight:700; cursor:pointer; text-align:center }
+    .quick-reply:hover{ background:var(--accent); color:white; border-color:var(--accent); transform:translateY(-2px) }
+    .quick-reply.custom{ background:linear-gradient(180deg, #fff, #fafafa) }
+
+    .modal{ position:fixed; inset:0; display:flex; align-items:center; justify-content:center; background: rgba(2,6,23,.45); z-index:1200; padding:1rem }
+    .modal.hidden{ display:none }
+    .modal-card{ width:min(720px,96%); background:white; border-radius:12px; padding:1rem 1rem 1.2rem; border:1px solid var(--border) }
+    .modal-header{ display:flex; justify-content:space-between; align-items:center; gap:1rem }
+    .modal-title{ font-weight:800; color:var(--text) }
+    .modal-textarea{ width:100%; min-height:110px; border-radius:10px; border:1px solid var(--border); padding:.6rem; margin-top:.6rem }
+    .modal-actions{ display:flex; gap:.6rem; justify-content:flex-end; margin-top:.6rem }
+
+    #messageNotification{ position:fixed; top:1.25rem; right:1.25rem; background:var(--accent); color:white; padding:.9rem 1rem; border-radius:12px; box-shadow:var(--shadow); z-index:1300; transform:translateX(10px); opacity:0; transition:all .36s cubic-bezier(.2,.9,.3,1) }
+    #messageNotification.visible{ transform:translateX(0); opacity:1 }
+
+    #inbox::-webkit-scrollbar{ width:10px }
+    #inbox::-webkit-scrollbar-thumb{ background:linear-gradient(#dfeee9,#eaf6ef); border-radius:10px; border:2px solid transparent; background-clip:padding-box }
+  </style>
+</head>
+<body>
+  <div class="main-panel">
+    <h1 class="panel-title">오손도손 소통</h1>
+    <p class="panel-subtitle">우리집 소음 현황을 확인하고 이웃과 부드럽게 소통하세요.</p>
+
+    <div class="user-address">우리집 주소: <span id="userId">(로그인 필요)</span></div>
+
+    <div class="layout">
+      <div>
+        <div class="card sender-form">
+          <div class="form-group">
+            <label class="form-label" for="recipientIdInput">메시지 보낼 이웃 주소</label>
+            <input id="recipientIdInput" class="form-input" placeholder="예: 101동 1301호" />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">어떤 메시지를 보낼까요? (추천 메시지)</label>
+            <div id="messageButtons"></div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="customMessage">직접 입력</label>
+            <textarea id="customMessage" class="form-input" rows="3" placeholder="이웃과 부드럽게 소통해보세요 ~"></textarea>
+            <button id="sendCustomBtn" class="btn-primary">직접 입력한 메시지 보내기</button>
+          </div>
+
+          <div id="messageSentBox" class="feedback-box hidden">✔️ 메시지가 성공적으로 전송되었습니다!</div>
+        </div>
+
+        <div style="margin-top:1rem" class="card inbox-section">
+          <h2 class="inbox-title">도착한 쪽지함</h2>
+          <div id="inbox"><p id="inboxPlaceholder">아직 도착한 쪽지가 없어요.</p></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="replyModal" class="modal hidden" aria-hidden="true">
+    <div class="modal-card">
+      <div class="modal-header">
+        <div class="modal-title">답장 보내기 <span id="replyTo" style="color:var(--muted);font-weight:600;margin-left:.6rem"></span></div>
+        <button id="closeModalBtn" aria-label="닫기" style="background:transparent;border:none;cursor:pointer;font-weight:800">✕</button>
+      </div>
+      <textarea id="modalTextarea" class="modal-textarea" placeholder="답장 내용을 입력하세요"></textarea>
+      <div class="modal-actions">
+        <button id="cancelModalBtn" class="btn-primary" style="background:transparent;color:var(--accent);border:1px solid var(--accent)">취소</button>
+        <button id="sendModalBtn" class="btn-primary">전송</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="messageNotification" aria-live="polite"> 
+    <div style="font-weight:800">✉️ 새로운 메시지 도착!</div>
+    <div id="notificationText" style="font-weight:700;margin-top:4px"></div>
+  </div>
+
+  <script>
+  // 자바스크립트 코드는 이전과 동일합니다. (변경 없음)
+  document.addEventListener('DOMContentLoaded', () => {
+    const aiMessages = [
+      "혹시 지금 무슨 일이 있으신가요? 쿵쿵거리는 소리가 계속 들려서요.",
+      "갑자기 큰 소리가 나서 놀랐어요. 괜찮으신지 걱정됩니다.",
+      "늦은 시간인데 발소리가 유독 크게 들리네요. 혹시 가능하시다면 조금만 조심해주실 수 있을까요?",
+      "오늘따라 소음이 좀 크게 들리는 것 같아요."
+    ];
+
+    const aiReplyMessages = [
+      "죄송합니다. 곧 조용히 하겠습니다.",
+      "알려주셔서 감사합니다. 주의하겠습니다.",
+      "불편을 드려 죄송해요. 아이들이 뛰어 놀아서 소리가 났나 봅니다. 바로 주의시키겠습니다!",
+      "이사/정리 중이었습니다. 최대한 소음을 줄이겠습니다."
+    ];
+
+    const userIdSpan = document.getElementById('userId');
+    const recipientIdInput = document.getElementById('recipientIdInput');
+    const messageButtonsContainer = document.getElementById('messageButtons');
+    const customMessageTextarea = document.getElementById('customMessage');
+    const sendCustomBtn = document.getElementById('sendCustomBtn');
+    const messageSentBox = document.getElementById('messageSentBox');
+    const inbox = document.getElementById('inbox');
+    const inboxPlaceholder = document.getElementById('inboxPlaceholder');
+    const notificationPopup = document.getElementById('messageNotification');
+    const notificationText = document.getElementById('notificationText');
+
+    const replyModal = document.getElementById('replyModal');
+    const modalTextarea = document.getElementById('modalTextarea');
+    const replyToLabel = document.getElementById('replyTo');
+    const sendModalBtn = document.getElementById('sendModalBtn');
+    const closeModalBtn = document.getElementById('closeModalBtn');
+    const cancelModalBtn = document.getElementById('cancelModalBtn');
+
+    let currentUserId = null;
+    let replyTarget = null;
+
+    function initialize(){
+      const params = new URLSearchParams(window.location.search);
+      currentUserId = params.get('userId') || '113동 1702호';
+      if(!currentUserId){
+        document.body.innerHTML = '<div style="padding:2rem;text-align:center"><h2 style="color:#d32f2f">잘못된 접근입니다.</h2><p>로그인 후 접근하세요.</p></div>';
+        return;
+      }
+      userIdSpan.textContent = currentUserId;
+      createMessageButtons();
+      setupEventListeners();
+      loadMessages();
+    }
+
+    function setupEventListeners(){
+      sendCustomBtn.addEventListener('click', () => {
+        const recipientId = recipientIdInput.value.trim();
+        const message = customMessageTextarea.value.trim();
+        if(!recipientId){ alert('받는 이웃의 아이디를 입력해주세요.'); return; }
+        if(!message){ alert('메시지를 입력하세요.'); return; }
+        sendMessage(message, recipientId);
+        customMessageTextarea.value = '';
+      });
+
+      window.addEventListener('storage', (e) => {
+        if(!currentUserId) return;
+        if(e.key === getInboxKey(currentUserId)){
+          loadMessages();
+        }
+      });
+
+      closeModalBtn.addEventListener('click', hideReplyModal);
+      cancelModalBtn.addEventListener('click', hideReplyModal);
+      sendModalBtn.addEventListener('click', () => {
+        const text = modalTextarea.value.trim();
+        if(!text) { alert('메시지를 입력하세요.'); return; }
+        if(!replyTarget){ alert('대상이 없습니다.'); hideReplyModal(); return; }
+        sendMessage(text, replyTarget);
+        hideReplyModal();
+      });
+
+      replyModal.addEventListener('click', (ev)=>{ if(ev.target===replyModal) hideReplyModal(); });
+    }
+
+    function createMessageButtons(){
+      messageButtonsContainer.innerHTML = '';
+      aiMessages.forEach(msg => {
+        const btn = document.createElement('button');
+        btn.className = 'preset-btn';
+        btn.type = 'button';
+        btn.textContent = msg;
+        btn.addEventListener('click', () => {
+          const recipientId = recipientIdInput.value.trim();
+          if(!recipientId){ alert('받는 이웃의 아이디를 먼저 입력해주세요.'); return; }
+          sendMessage(msg, recipientId);
+        });
+        messageButtonsContainer.appendChild(btn);
+      });
+    }
+
+    function sendMessage(messageText, recipientId){
+      if(!recipientId) return;
+      if(recipientId === currentUserId){ alert('자기 자신에게는 메시지를 보낼 수 없습니다.'); return; }
+      const payload = { senderId: currentUserId, receiverId: recipientId, message: messageText, timestamp: Date.now() };
+      pushToLocalInbox(recipientId, payload);
+      showSentFeedback();
+    }
+
+    function showSentFeedback(){
+      messageSentBox.classList.remove('hidden');
+      setTimeout(()=> messageSentBox.classList.add('hidden'), 2200);
+    }
+
+    function addMessageToInbox(message){
+      // inboxPlaceholder가 있다면 숨김 처리
+      const placeholder = document.getElementById('inboxPlaceholder');
+      if (placeholder) placeholder.style.display = 'none';
+
+      const card = document.createElement('article');
+      card.className = 'message-card';
+
+      const header = document.createElement('div'); 
+      header.className = 'header';
+      
+      const headerText = document.createElement('span');
+      headerText.textContent = `${message.senderId}님에게서 쪽지 도착`;
+      
+      const deleteBtn = document.createElement('button');
+      deleteBtn.className = 'delete-btn';
+      deleteBtn.textContent = '삭제';
+      deleteBtn.setAttribute('aria-label', '메시지 삭제');
+      deleteBtn.dataset.timestamp = message.timestamp;
+      deleteBtn.addEventListener('click', handleDeleteMessage);
+
+      header.append(headerText, deleteBtn);
+      
+      const content = document.createElement('div'); content.className='content'; content.textContent = message.message;
+      const meta = document.createElement('div'); meta.className='meta'; meta.textContent = formatTimestamp(message.timestamp);
+      const actions = document.createElement('div'); actions.className='reply-actions';
+
+      aiReplyMessages.forEach(rep => {
+        const b = document.createElement('button'); b.className='quick-reply'; b.type='button'; b.textContent = rep;
+        b.addEventListener('click', () => sendMessage(rep, message.senderId));
+        actions.appendChild(b);
+      });
+
+      const custom = document.createElement('button'); custom.className='quick-reply custom'; custom.type='button'; custom.textContent = '자유 입력';
+      custom.addEventListener('click', () => showReplyModal(message.senderId));
+      actions.appendChild(custom);
+
+      card.append(header, content, meta, actions);
+      inbox.prepend(card);
+    }
+    
+    function handleDeleteMessage(event) {
+        if (!confirm('이 메시지를 정말 삭제하시겠습니까?')) {
+            return;
+        }
+        
+        const timestampToDelete = event.target.dataset.timestamp;
+        
+        const key = getInboxKey(currentUserId);
+        let messages = JSON.parse(localStorage.getItem(key) || '[]');
+        
+        messages = messages.filter(msg => String(msg.timestamp) !== timestampToDelete);
+        
+        localStorage.setItem(key, JSON.stringify(messages));
+        
+        loadMessages();
+    }
+
+
+    function showReplyModal(targetId){
+      replyTarget = targetId;
+      replyToLabel.textContent = targetId;
+      modalTextarea.value = '';
+      replyModal.classList.remove('hidden');
+      replyModal.setAttribute('aria-hidden', 'false');
+      modalTextarea.focus();
+    }
+    function hideReplyModal(){
+      replyTarget = null;
+      replyModal.classList.add('hidden');
+      replyModal.setAttribute('aria-hidden', 'true');
+      modalTextarea.value = '';
+    }
+
+    function showNotification(message){
+      const summary = message.message.length > 40 ? message.message.slice(0,40) + '...' : message.message;
+      notificationText.textContent = `"${summary}"`; 
+      notificationPopup.classList.add('visible');
+      setTimeout(()=> notificationPopup.classList.remove('visible'), 3500);
+    }
+
+    const getInboxKey = userId => `osondoson_inbox_${userId}`;
+
+    function pushToLocalInbox(receiverId, payload){
+      const key = getInboxKey(receiverId);
+      const arr = JSON.parse(localStorage.getItem(key) || '[]');
+      arr.push(payload);
+      localStorage.setItem(key, JSON.stringify(arr));
+
+      if(receiverId === currentUserId){
+        loadMessages();
+      }
+    }
+
+    function loadMessages(){
+      const key = getInboxKey(currentUserId);
+      const arr = JSON.parse(localStorage.getItem(key) || '[]');
+      arr.sort((a,b)=> a.timestamp - b.timestamp);
+      inbox.innerHTML = '';
+      
+      if(arr.length === 0){
+        inbox.innerHTML = '<p id="inboxPlaceholder">아직 도착한 쪽지가 없어요.</p>';
+      } else {
+        arr.forEach(addMessageToInbox);
+      }
+    }
+
+    function formatTimestamp(ts){ if(!ts) return ''; return new Date(ts).toLocaleString('ko-KR'); }
+
+    initialize();
+  });
+  </script>
+</body>
+</html>
