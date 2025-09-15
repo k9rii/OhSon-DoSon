@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>오손도손 - 설정 & 계정 관리</title>
+    <link rel="stylesheet" href="/css/sungjoo.css">
+    <link rel="stylesheet" href="/css/home.css" />
+</head>
+<body>
+    <div class="wrap">
+        <header>
+            <div class="header-inner">
+                <div class="brand">
+                    <div class="brand-badge" aria-hidden="true">
+                        <svg viewBox="0 0 24 24"><path d="M12 3a9 9 0 100 18 9 9 0 000-18Zm0 3.5a1.25 1.25 0 110 2.5 1.25 1.25 0 010-2.5Zm0 4.25a.75.75 0 01.75.75v6.25a.75.75 0 01-1.5 0V11.5a.75.75 0 01.75-.75Z"/></svg>
+                    </div>
+                    <div>오손도손 <span class="sub">설정</span></div>
+                </div>
+                <div class="spacer"></div>
+                <nav class="top-actions" aria-label="상단 내비게이션">
+                    <a class="btn" href="/html/home.html">홈</a>
+                    <a class="btn" href="/html/board.html">게시판</a>
+                    <a class="btn" href="/html/settings.html">설정</a>
+                    <a class="btn btn-primary" href="/html/message.html">메시지</a>
+                </nav>
+            </div>
+        </header>    
+    <main class="main-content">
+        <div class="container">
+            <h1>⚙️ 설정 / 계정 관리</h1>
+            <h2>내 정보</h2>
+            <ul class="settings-menu">
+                <li><span>프로필 수정</span></li>
+                <li><span>알림 설정</span></li>
+            </ul>
+            <h2>고객 지원</h2>
+            <ul class="settings-menu">
+                <li onclick="toggleFaq()"><span>자주 묻는 질문 (FAQ)</span></li>
+                <li onclick="showOfficeContact()"><span>관리사무소 연락처</span></li>
+            </ul>
+            <div id="faq-section" style="display: none; margin-top: 20px;">
+                 <details class="faq-item"><summary>Q. '오손'과 '도손'은 무슨 뜻인가요?</summary><p>'오손'은 '우리집', '도손'은 '이웃집'을 의미하는 명칭입니다.</p></details>
+                 <details class="faq-item"><summary>Q. 제 메시지가 이웃에게 어떻게 전달되나요?</summary><p>LLM으로 필터링 후, 부적절한 표현이 있다면 순화하여 이웃에게 전달합니다.</p></details>
+            </div>
+            <h2>계정</h2>
+             <ul class="settings-menu">
+                <li id="logoutButtonFromMenu"><span>로그아웃</span></li>
+            </ul>
+        </div>
+    </main>
+    </div>
+    <script src="/js/settings.js"></script>
+</body>
+</html>

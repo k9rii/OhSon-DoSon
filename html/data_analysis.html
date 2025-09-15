@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>오손도손 - 데이터 & 통계</title>
+    <link rel="stylesheet" href="/css/sungjoo">
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        //Firebase 초기화 코드는 외부 JS 파일보다 먼저 실행되어야 하므로 여기에 둡니다.
+        const firebaseConfig = {
+            apiKey: "YOUR_API_KEY",
+            authDomain: "YOUR_AUTH_DOMAIN",
+            projectId: "YOUR_PROJECT_ID",
+            storageBucket: "YOUR_STORAGE_BUCKET",
+            messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+            appId: "YOUR_APP_ID"
+        };
+        firebase.initializeApp(firebaseConfig);
+    </script>
+</head>
+<body>
+    <header class="header" id="main-header"></header>
+    <main class="main-content">
+        <div class="container">
+            <h1>📊 데이터 & 통계</h1>
+            <p>'오손(우리집)'의 소음 발생 현황을 객관적인 데이터로 확인하여 생활 습관을 파악할 수 있습니다.</p>
+            <div class="chart-container">
+                <canvas id="noiseChart"></canvas>
+            </div>
+            <div class="stats-summary">
+                <p>오늘 가장 소음이 잦았던 시간은 <strong id="peak-time">...</strong> 입니다.</p>
+                <p>스스로 주의가 필요한 '주의' 단계 소음이 <strong id="warning-count">...</strong> 감지되었습니다.</p>
+            </div>
+        </div>
+    </main>
+    <script src="/js/data_analysis.js"></script>
+</body>
+</html>

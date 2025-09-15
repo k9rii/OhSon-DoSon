@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>오손도손 · 로그인</title>
+  <style>
+    body{font-family:sans-serif; background:#f8f8f8; margin:0; display:flex; align-items:center; justify-content:center; height:100vh}
+    .login-box{background:#fff; padding:30px; border-radius:16px; box-shadow:0 2px 8px rgba(0,0,0,0.15); width:320px}
+    .login-box h1{font-size:1.4rem; margin:0 0 20px; text-align:center}
+    .login-box label{display:block; margin:12px 0 4px; font-size:.9rem}
+    .login-box input{width:100%; padding:10px; border:1px solid #ccc; border-radius:8px}
+    .login-box button{width:100%; padding:12px; margin-top:18px; border:none; border-radius:8px;
+      background:linear-gradient(135deg,#4caf50,#81c784); color:#fff; font-weight:700; cursor:pointer}
+    .error{color:#b00020; margin-top:10px; font-size:.9rem; display:none}
+  </style>
+</head>
+<body>
+  <div class="login-box">
+    <h1>오손도손 로그인</h1>
+    <form id="loginForm">
+      <label for="userIdInput">전화번호</label>
+      <input id="userIdInput" type="text" placeholder="010-1234-5678" required>
+      <label for="passwordInput">비밀번호</label>
+      <input id="passwordInput" type="password" placeholder="****" required>
+      <button type="submit">로그인</button>
+      <div id="loginError" class="error">로그인 실패</div>
+    </form>
+  </div>
+
+  <script>
+    document.getElementById('loginForm').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const phone = document.getElementById('userIdInput').value.trim();
+      const pw = document.getElementById('passwordInput').value.trim();
+
+      if(phone === "010-1111-1111" && pw === "1111"){
+        sessionStorage.setItem("osondoson_user_name", "mapo_samsung");
+        sessionStorage.setItem("osondoson_user_unit", "113동 1602호");
+        window.location.href = "/";
+      }
+      else if(phone === "010-2222-2222" && pw === "2222"){
+        sessionStorage.setItem("osondoson_user_name", "mapo_samsung");
+        sessionStorage.setItem("osondoson_user_unit", "113동 1702호");
+        window.location.href = "/";
+      }
+      else{
+        const err = document.getElementById('loginError');
+        err.style.display = 'block';
+        err.textContent = '전화번호 또는 비밀번호가 올바르지 않습니다.';
+      }
+    });
+  </script>
+</body>
+</html>
