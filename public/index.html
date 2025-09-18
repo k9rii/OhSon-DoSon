@@ -91,10 +91,10 @@
         </div>
         <div class="spacer"></div>
         <nav class="top-actions">
-          <a class="btn" href="/html/home.html">홈</a>
+          <a class="btn" href="/">홈</a>
           <a class="btn" href="/html/board.html">게시판</a>
           <a class="btn" href="/html/settings.html">설정</a>
-          <a id="messageLink" class="btn btn-primary" href="#">메시지</a>
+          <a id="messageLink" class="btn btn-primary" href="/html/message.html">메시지</a>
         </nav>
       </div>
     </header>
@@ -130,37 +130,15 @@
 
             <div class="panel" style="margin-top:16px">
               <div id="trend" class="sub" style="margin:6px 2px 8px">최근 24시간 추세 <a href="/html/data_analysis.html#noiseChart" style="margin-left:8px">자세히</a></div>
-              <div class="spark" aria-label="시간대별 데시벨 막대">
-                <div class="bar" style="--h:24%" data-level="good" title="00:00 · 40 dB"></div>
-                <div class="bar" style="--h:18%" data-level="good" title="01:00 · 38 dB"></div>
-                <div class="bar" style="--h:16%" data-level="good" title="02:00 · 37 dB"></div>
-                <div class="bar" style="--h:18%" data-level="good"></div>
-                <div class="bar" style="--h:22%" data-level="good"></div>
-                <div class="bar" style="--h:30%" data-level="good"></div>
-                <div class="bar" style="--h:45%" data-level="warn" title="07:00 · 통근 소음"></div>
-                <div class="bar" style="--h:55%" data-level="warn"></div>
-                <div class="bar" style="--h:42%" data-level="warn"></div>
-                <div class="bar" style="--h:36%" data-level="good"></div>
-                <div class="bar" style="--h:32%" data-level="good"></div>
-                <div class="bar" style="--h:40%" data-level="good"></div>
-                <div class="bar" style="--h:52%" data-level="warn"></div>
-                <div class="bar" style="--h:62%" data-level="warn"></div>
-                <div class="bar" style="--h:70%" data-level="bad" title="15:00 · 공사 소음"></div>
-                <div class="bar" style="--h:60%" data-level="warn"></div>
-                <div class="bar" style="--h:48%" data-level="warn"></div>
-                <div class="bar" style="--h:38%" data-level="good"></div>
-                <div class="bar" style="--h:34%" data-level="good"></div>
-                <div class="bar" style="--h:30%" data-level="good"></div>
-                <div class="bar" style="--h:26%" data-level="good"></div>
-                <div class="bar" style="--h:22%" data-level="good"></div>
-                <div class="bar" style="--h:20%" data-level="good"></div>
-                <div class="bar" style="--h:18%" data-level="good"></div>
+              <div id="spark24" class="spark" aria-label="시간대별 데시벨 막대">
+                <!-- bars will be injected dynamically from Firestore -->
               </div>
               <div class="spark-legend">
                 <span class="dot d-good"></span> 양호
                 <span class="dot d-warn" style="margin-left:10px"></span> 주의
                 <span class="dot d-bad" style="margin-left:10px"></span> 경고
               </div>
+              <div id="fb-status" style="margin-top:8px; color:var(--muted); font-size:.9rem"></div>
             </div>
 
           </div>
@@ -177,28 +155,28 @@
           <div class="card-box-title">오손도손 게시판 · 미리보기</div>
           <p class="card-box-sub">최근 업데이트 4건</p>
           <div class="preview-list">
-            <a class="preview-item" href="board.html#notice">
+            <a class="preview-item" href="/html/board.html#notice">
               <div>
                 <div class="preview-title">[공지] 관리사무소 점검 안내</div>
                 <div class="preview-meta">9/15(월) 14:00–16:00 <span class="preview-tag">#공지</span></div>
               </div>
               <div class="preview-meta">어제</div>
             </a>
-            <a class="preview-item" href="board.html#life">
+            <a class="preview-item" href="/html/board.html#life">
               <div>
                 <div class="preview-title">마트 같이 가실 분? 🚗</div>
                 <div class="preview-meta">오늘 · 18:30 <span class="preview-tag">#모임</span></div>
               </div>
               <div class="preview-meta">10분 전</div>
             </a>
-            <a class="preview-item" href="board.html#noise">
+            <a class="preview-item" href="/html/board.html#noise">
               <div>
                 <div class="preview-title">15–17시 공사 소음 양해</div>
                 <div class="preview-meta">오늘 · 15:00 <span class="preview-tag">#양해글</span></div>
               </div>
               <div class="preview-meta">1시간 전</div>
             </a>
-            <a class="preview-item" href="board.html#event">
+            <a class="preview-item" href="/html/board.html#event">
               <div>
                 <div class="preview-title">러닝 크루 모집 🏃‍♀️</div>
                 <div class="preview-meta">일요일 오전 <span class="preview-tag">#운동</span></div>
@@ -239,7 +217,7 @@
       const unit = sessionStorage.getItem("osondoson_user_unit");
       if(!name || !unit){
         // 로그인 안 한 상태면 로그인 화면으로 강제 이동
-        window.location.href = "login.html";
+        window.location.href = "/html/login.html";
         return;
       }
 
@@ -250,14 +228,106 @@
         <p class="card-box-sub">${name} · ${unit}</p>
       `;
 
-      // ✅ [추가된 부분] 메시지 버튼의 링크를 동적으로 설정합니다.
+      // ✅ [추가된 부분] 메시지 버튼의 클릭 이벤트를 설정합니다.
       const messageLink = document.getElementById("messageLink");
       if (messageLink) {
-        // sessionStorage에 저장된 unit(예: "113동 1702호")을 가져와 URL 파라미터로 추가
-        messageLink.href = `/html/message.html?userId=${unit}`;
+        messageLink.addEventListener('click', (e) => {
+          e.preventDefault();
+          const messageUrl = `/html/message.html?userId=${unit}`;
+          console.log('🔗 메시지 링크 클릭:', { unit, messageUrl });
+          window.location.href = messageUrl;
+        });
+        console.log('🔗 메시지 링크 이벤트 설정 완료');
+      } else {
+        console.log('❌ 메시지 링크 요소를 찾을 수 없음');
       }
     });
   </script>
+  
+  <script>
+    // Optional: set Firebase config globally before loading js/firebase.js
+    window.__FIREBASE_CONFIG__ = {
+      apiKey: "AIzaSyAauclmm4DAdTU8zxN_ZkdH0tXB0eHgll4",
+      authDomain: "makinggood-2025.firebaseapp.com",
+      projectId: "makinggood-2025",
+      storageBucket: "makinggood-2025.firebasestorage.app",
+      messagingSenderId: "718359291961",
+      appId: "1:718359291961:web:dd3f7cd3c8639a02f905e8"
+    };
+  </script>
+  <script type="module" src="/js/firebase.js"></script>
+  <script type="module">
+    import { getFirebase } from '/js/firebase.js';
+    import { doc, getDoc } from 'https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore.js';
 
+    const statusEl = document.getElementById('fb-status');
+    const setStatus = (msg)=>{ if(statusEl) statusEl.textContent = msg; };
+
+    function classifyLevel(db) {
+      if (db >= 65) return 'bad';
+      if (db >= 55) return 'warn';
+      return 'good';
+    }
+
+    function renderSpark(values){
+      const host = document.getElementById('spark24');
+      if(!host) return;
+      host.innerHTML = '';
+      const max = Math.max(1, ...values);
+      values.forEach((v, i)=>{
+        const bar = document.createElement('div');
+        const h = Math.round((v / max) * 100);
+        bar.className = 'bar';
+        bar.style.setProperty('--h', h + '%');
+        bar.dataset.level = classifyLevel(v);
+        bar.title = `${String(i).padStart(2,'0')}:00 · ${v} dB`;
+        host.appendChild(bar);
+      });
+      // update KPIs
+      const nowEl = document.getElementById('kpi-now');
+      const peakEl = document.getElementById('kpi-peak');
+      const nightEl = document.getElementById('kpi-night');
+      if(values.length){
+        const now = values[values.length-1];
+        const peak = Math.max(...values);
+        const nightSlice = values.slice(22).concat(values.slice(0,6));
+        const nightAvg = Math.round(nightSlice.reduce((a,b)=>a+b,0)/nightSlice.length);
+        if(nowEl){ nowEl.textContent = `${now} dB`; nowEl.dataset.db = String(now); }
+        if(peakEl){ peakEl.textContent = `${peak} dB`; peakEl.dataset.db = String(peak); }
+        if(nightEl){ nightEl.textContent = `${nightAvg} dB`; nightEl.dataset.db = String(nightAvg); }
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', async ()=>{
+      try{
+        const { db, app } = getFirebase();
+        setStatus('Firebase 초기화 완료. 데이터 불러오는 중...');
+        const ref = doc(db, 'metrics', 'noise24h');
+        const snap = await getDoc(ref);
+        if(!snap.exists()){
+          setStatus('문서가 없습니다: metrics/noise24h. Firestore에 values[24]를 만들어 주세요.');
+          return;
+        }
+        const data = snap.data();
+        const values = Array.isArray(data?.values) && data.values.length === 24
+          ? data.values.map(n=>Number(n)||0)
+          : new Array(24).fill(0);
+        renderSpark(values);
+        setStatus('Firestore 로드 성공. 차트가 최신 데이터로 표시됩니다.');
+      }catch(e){
+        console.error('[spark] failed to load:', e);
+        const msg = String(e && e.message ? e.message : e);
+        if(/Missing or insufficient permissions/i.test(msg)){
+          setStatus('권한 오류: Firestore 규칙 또는 승인 도메인을 확인하세요 (개발용으로 allow read: if true;).');
+        } else if(/Failed to fetch/i.test(msg) || /Network/i.test(msg)){
+          setStatus('네트워크/호출 오류: 반드시 dev 서버 URL(http://localhost:5173)로 접속하세요.');
+        } else if(/invalid-argument|appId|apiKey|authDomain/i.test(msg)){
+          setStatus('설정 오류: Firebase config 값을 다시 확인하세요.');
+        } else {
+          setStatus('로드 실패: ' + msg);
+        }
+      }
+    });
+  </script>
 </body>
 </html>

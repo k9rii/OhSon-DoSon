@@ -1,4 +1,4 @@
-import Filter from 'badwords-ko';
+// import Filter from 'badwords-ko'; // 임시로 주석 처리
 
 document.addEventListener('DOMContentLoaded', () => {
     const aiMessages = [
@@ -25,7 +25,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const inboxPlaceholder = document.getElementById('inboxPlaceholder');
     const notificationPopup = document.getElementById('messageNotification');
     const notificationText = document.getElementById('notificationText');
-    const filter = new Filter();
+    // const filter = new Filter(); // 임시로 주석 처리
     const replyModal = document.getElementById('replyModal');
     const modalTextarea = document.getElementById('modalTextarea');
     const replyToLabel = document.getElementById('replyTo');
@@ -46,13 +46,35 @@ document.addEventListener('DOMContentLoaded', () => {
     let replyTarget = null;
 
     function initialize(){
+        // 로그인 상태 확인
+        const name = sessionStorage.getItem("osondoson_user_name");
+        const unit = sessionStorage.getItem("osondoson_user_unit");
+        
+        console.log('🔍 로그인 상태 확인:', { name, unit });
+        
+        if(!name || !unit){
+            console.log('❌ 로그인 정보 없음 - 로그인 페이지로 이동');
+            // 로그인 안 한 상태면 로그인 화면으로 강제 이동
+            window.location.href = "/html/login.html";
+            return;
+        }
+
         const params = new URLSearchParams(window.location.search);
-        currentUserId = params.get('userId') || '113동 1702호';
+        currentUserId = params.get('userId') || unit; // sessionStorage의 unit을 기본값으로 사용
+        
+        console.log('🔍 URL 파라미터:', { 
+            urlParams: Object.fromEntries(params.entries()),
+            currentUserId,
+            unit 
+        });
+        
         if(!currentUserId){
+            console.log('❌ 사용자 ID 없음');
             document.body.innerHTML = '<div style="padding:2rem;text-align:center"><h2 style="color:#d32f2f">잘못된 접근입니다.</h2><p>로그인 후 접근하세요.</p></div>';
             return;
         }
 
+        console.log('✅ 로그인 성공 - 사용자 ID:', currentUserId);
         userIdSpan.textContent = currentUserId;
         createMessageButtons();
         setupEventListeners();
@@ -68,7 +90,8 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!message) { alert('메시지를 입력하세요.'); return; }
 
             // ▼▼▼ 욕설 필터링 및 AI 제안 로직으로 교체 ▼▼▼
-            if (filter.isProfane(message)) {
+            // 모든 직접 입력 메시지를 AI로 순화
+            if (true) { // filter.isProfane(message)) {
                 sendCustomBtn.disabled = true;
                 sendCustomBtn.textContent = 'AI가 부드러운 표현을 찾고 있어요...';
 
@@ -254,11 +277,8 @@ document.addEventListener('DOMContentLoaded', () => {
             hideAiSuggestionModal();
         };
         
-        // 버튼에 대한 기존 이벤트 리스너를 제거하고 새로 추가 (중복 방지)
-        const newSendBtn = sendSuggestedBtn.cloneNode(true);
-        sendSuggestedBtn.parentNode.replaceChild(newSendBtn, sendSuggestedBtn);
-        // 전역 변수를 업데이트하여 새 버튼을 참조하도록 함
-        document.getElementById('sendSuggestedBtn').addEventListener('click', sendSuggestedHandler);
+        // 간단하게 기존 이벤트 리스너 제거 후 새로 추가
+        sendSuggestedBtn.onclick = sendSuggestedHandler;
 
         aiSuggestionModal.classList.remove('hidden');
         aiSuggestionModal.setAttribute('aria-hidden', 'false');

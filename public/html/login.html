@@ -29,21 +29,30 @@
   </div>
 
   <script>
+        // 이미 로그인되어 있으면 바로 홈으로 이동
+        (function(){
+          const name = sessionStorage.getItem("osondoson_user_name");
+          const unit = sessionStorage.getItem("osondoson_user_unit");
+          if(name && unit){
+            window.location.href = "/";
+          }
+        })();
+
     document.getElementById('loginForm').addEventListener('submit', (e) => {
       e.preventDefault();
       const phone = document.getElementById('userIdInput').value.trim();
       const pw = document.getElementById('passwordInput').value.trim();
 
-      if(phone === "010-1111-1111" && pw === "1111"){
-        sessionStorage.setItem("osondoson_user_name", "mapo_samsung");
-        sessionStorage.setItem("osondoson_user_unit", "113동 1602호");
-        window.location.href = "/";
-      }
-      else if(phone === "010-2222-2222" && pw === "2222"){
-        sessionStorage.setItem("osondoson_user_name", "mapo_samsung");
-        sessionStorage.setItem("osondoson_user_unit", "113동 1702호");
-        window.location.href = "/";
-      }
+            if(phone === "010-1111-1111" && pw === "1111"){
+              sessionStorage.setItem("osondoson_user_name", "mapo_samsung");
+              sessionStorage.setItem("osondoson_user_unit", "113동 1602호");
+              window.location.href = "/html/home.html";
+            }
+            else if(phone === "010-2222-2222" && pw === "2222"){
+              sessionStorage.setItem("osondoson_user_name", "mapo_samsung");
+              sessionStorage.setItem("osondoson_user_unit", "113동 1702호");
+              window.location.href = "/html/home.html";
+            }
       else{
         const err = document.getElementById('loginError');
         err.style.display = 'block';

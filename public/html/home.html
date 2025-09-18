@@ -130,36 +130,18 @@
 
             <div class="panel" style="margin-top:16px">
               <div id="trend" class="sub" style="margin:6px 2px 8px">최근 24시간 추세 <a href="/html/data_analysis.html#noiseChart" style="margin-left:8px">자세히</a></div>
-              <div class="spark" aria-label="시간대별 데시벨 막대">
-                <div class="bar" style="--h:24%" data-level="good" title="00:00 · 40 dB"></div>
-                <div class="bar" style="--h:18%" data-level="good" title="01:00 · 38 dB"></div>
-                <div class="bar" style="--h:16%" data-level="good" title="02:00 · 37 dB"></div>
-                <div class="bar" style="--h:18%" data-level="good"></div>
-                <div class="bar" style="--h:22%" data-level="good"></div>
-                <div class="bar" style="--h:30%" data-level="good"></div>
-                <div class="bar" style="--h:45%" data-level="warn" title="07:00 · 통근 소음"></div>
-                <div class="bar" style="--h:55%" data-level="warn"></div>
-                <div class="bar" style="--h:42%" data-level="warn"></div>
-                <div class="bar" style="--h:36%" data-level="good"></div>
-                <div class="bar" style="--h:32%" data-level="good"></div>
-                <div class="bar" style="--h:40%" data-level="good"></div>
-                <div class="bar" style="--h:52%" data-level="warn"></div>
-                <div class="bar" style="--h:62%" data-level="warn"></div>
-                <div class="bar" style="--h:70%" data-level="bad" title="15:00 · 공사 소음"></div>
-                <div class="bar" style="--h:60%" data-level="warn"></div>
-                <div class="bar" style="--h:48%" data-level="warn"></div>
-                <div class="bar" style="--h:38%" data-level="good"></div>
-                <div class="bar" style="--h:34%" data-level="good"></div>
-                <div class="bar" style="--h:30%" data-level="good"></div>
-                <div class="bar" style="--h:26%" data-level="good"></div>
-                <div class="bar" style="--h:22%" data-level="good"></div>
-                <div class="bar" style="--h:20%" data-level="good"></div>
-                <div class="bar" style="--h:18%" data-level="good"></div>
+              <div id="spark24" class="spark" aria-label="시간대별 데시벨 막대">
+                <!-- bars will be injected dynamically from Firestore -->
               </div>
               <div class="spark-legend">
                 <span class="dot d-good"></span> 양호
                 <span class="dot d-warn" style="margin-left:10px"></span> 주의
                 <span class="dot d-bad" style="margin-left:10px"></span> 경고
+              </div>
+              <div id="fb-status" style="margin-top:8px; color:var(--muted); font-size:.9rem"></div>
+              <div style="margin-top:8px; display:flex; gap:8px;">
+                <button onclick="window.testChart()" style="padding:8px 12px; background:var(--accent); color:white; border:none; border-radius:8px; cursor:pointer; font-size:.9rem">테스트 차트</button>
+                <button onclick="window.loadFirebaseData()" style="padding:8px 12px; background:#1976d2; color:white; border:none; border-radius:8px; cursor:pointer; font-size:.9rem">Firebase 데이터 로드</button>
               </div>
             </div>
 
@@ -207,7 +189,7 @@
             </a>
           </div>
           <div class="preview-actions">
-            <a class="btn" href="board.html">전체 보기</a>
+            <a class="btn" href="/html/board.html">전체 보기</a>
           </div>
         </section>
 
@@ -254,10 +236,216 @@
       const messageLink = document.getElementById("messageLink");
       if (messageLink) {
         // sessionStorage에 저장된 unit(예: "113동 1702호")을 가져와 URL 파라미터로 추가
-        messageLink.href = `/html/message.html?userId=${unit}`;
+        const messageUrl = `/html/message.html?userId=${unit}`;
+        messageLink.href = messageUrl;
+        console.log('🔗 메시지 링크 설정:', { unit, messageUrl });
+      } else {
+        console.log('❌ 메시지 링크 요소를 찾을 수 없음');
       }
     });
   </script>
+  
+  <script>
+    // Firebase 설정 확인 및 로깅
+    window.__FIREBASE_CONFIG__ = {
+      apiKey: "AIzaSyAauclmm4DAdTU8zxN_ZkdH0tXB0eHgll4",
+      authDomain: "makinggood-2025.firebaseapp.com",
+      projectId: "makinggood-2025",
+      storageBucket: "makinggood-2025.firebasestorage.app",
+      messagingSenderId: "718359291961",
+      appId: "1:718359291961:web:dd3f7cd3c8639a02f905e8"
+    };
+    console.log('Firebase 설정:', window.__FIREBASE_CONFIG__);
+  </script>
+  <script type="module" src="/js/firebase.js"></script>
+  <script type="module">
+    import { getFirebase } from '/js/firebase.js';
+    import { doc, getDoc } from 'https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore.js';
 
+    const statusEl = document.getElementById('fb-status');
+    const setStatus = (msg)=>{ if(statusEl) statusEl.textContent = msg; };
+
+    function classifyLevel(db) {
+      if (db >= 65) return 'bad';
+      if (db >= 55) return 'warn';
+      return 'good';
+    }
+
+    function renderSpark(values){
+      console.log('renderSpark 함수 호출됨, values:', values);
+      const host = document.getElementById('spark24');
+      console.log('spark24 요소:', host);
+      
+      if(!host) {
+        console.error('spark24 요소를 찾을 수 없습니다!');
+        return;
+      }
+      
+      host.innerHTML = '';
+      console.log('spark24 요소 초기화 완료');
+      
+      if(!values || values.length === 0) {
+        console.log('values가 비어있음, 기본값 사용');
+        values = new Array(24).fill(0);
+      }
+      
+      const max = Math.max(1, ...values);
+      console.log('최대값:', max);
+      
+      values.forEach((v, i)=>{
+        const bar = document.createElement('div');
+        const h = Math.round((v / max) * 100);
+        bar.className = 'bar';
+        bar.style.setProperty('--h', h + '%');
+        bar.dataset.level = classifyLevel(v);
+        bar.title = `${String(i).padStart(2,'0')}:00 · ${v} dB`;
+        host.appendChild(bar);
+        console.log(`막대 ${i} 추가: 높이 ${h}%, 값 ${v}dB`);
+      });
+      
+      console.log('총 막대 개수:', host.children.length);
+      
+      // update KPIs
+      const nowEl = document.getElementById('kpi-now');
+      const peakEl = document.getElementById('kpi-peak');
+      const nightEl = document.getElementById('kpi-night');
+      
+      console.log('KPI 요소들:', { nowEl, peakEl, nightEl });
+      
+      if(values.length){
+        const now = values[values.length-1];
+        const peak = Math.max(...values);
+        const nightSlice = values.slice(22).concat(values.slice(0,6));
+        const nightAvg = Math.round(nightSlice.reduce((a,b)=>a+b,0)/nightSlice.length);
+        
+        console.log('KPI 값들:', { now, peak, nightAvg });
+        
+        if(nowEl){ nowEl.textContent = `${now} dB`; nowEl.dataset.db = String(now); }
+        if(peakEl){ peakEl.textContent = `${peak} dB`; peakEl.dataset.db = String(peak); }
+        if(nightEl){ nightEl.textContent = `${nightAvg} dB`; nightEl.dataset.db = String(nightAvg); }
+      }
+      
+      console.log('renderSpark 함수 완료');
+    }
+
+    // 테스트용 차트 표시 함수 (전역 스코프)
+    window.testChart = function() {
+      console.log('테스트 차트 표시 버튼 클릭됨');
+      const testValues = [35, 32, 28, 30, 40, 45, 50, 55, 60, 65, 70, 68, 55, 50, 45, 48, 52, 58, 62, 65, 60, 55, 50, 45];
+      renderSpark(testValues);
+      const statusEl = document.getElementById('fb-status');
+      if (statusEl) {
+        statusEl.textContent = '테스트 차트가 표시되었습니다.';
+      }
+    };
+
+    // Firebase 데이터 직접 로드 함수
+    window.loadFirebaseData = async function() {
+      try {
+        console.log('Firebase 데이터 직접 로드 시작...');
+        const { db } = getFirebase();
+        const ref = doc(db, 'metrics', 'noise24h');
+        const snap = await getDoc(ref);
+        
+        if (snap.exists()) {
+          const data = snap.data();
+          console.log('Firebase에서 가져온 데이터:', data);
+          
+          if (data.values && Array.isArray(data.values)) {
+            const values = data.values.map(n => Number(n) || 0);
+            console.log('처리된 값들:', values);
+            renderSpark(values);
+            
+            const statusEl = document.getElementById('fb-status');
+            if (statusEl) {
+              statusEl.textContent = `✅ Firebase 데이터 로드 성공! (${values.length}개 값)`;
+            }
+          } else {
+            console.error('values 배열이 없음:', data);
+          }
+        } else {
+          console.log('Firebase 문서가 존재하지 않음');
+          const statusEl = document.getElementById('fb-status');
+          if (statusEl) {
+            statusEl.textContent = '❌ Firebase 문서가 존재하지 않습니다.';
+          }
+        }
+      } catch (error) {
+        console.error('Firebase 데이터 로드 실패:', error);
+        const statusEl = document.getElementById('fb-status');
+        if (statusEl) {
+          statusEl.textContent = `❌ Firebase 로드 실패: ${error.message}`;
+        }
+      }
+    };
+
+    document.addEventListener('DOMContentLoaded', async ()=>{
+      try{
+        console.log('Firebase 초기화 시작...');
+        const { db, app } = getFirebase();
+        console.log('Firebase 초기화 완료:', { db, app });
+        setStatus('Firebase 초기화 완료. 데이터 불러오는 중...');
+        
+        // Firebase 연결 테스트
+        console.log('Firebase 앱 정보:', app.name, app.options);
+        
+        const ref = doc(db, 'metrics', 'noise24h');
+        console.log('Firestore 문서 참조 생성:', ref);
+        console.log('문서 경로:', ref.path);
+        
+        const snap = await getDoc(ref);
+        console.log('Firestore 문서 스냅샷:', snap);
+        console.log('문서 존재 여부:', snap.exists());
+        
+        if(!snap.exists()){
+          console.log('문서가 존재하지 않음, 기본 데이터로 차트 표시');
+          setStatus('Firestore 데이터가 없습니다. 기본 차트를 표시합니다. <a href="/html/firebase_test.html" target="_blank">테스트 페이지</a>에서 실제 데이터를 추가해보세요.');
+          
+          // 기본 데이터로 차트 표시
+          const defaultValues = [35, 32, 28, 30, 40, 45, 50, 55, 60, 65, 70, 68, 55, 50, 45, 48, 52, 58, 62, 65, 60, 55, 50, 45];
+          renderSpark(defaultValues);
+          return;
+        }
+        
+        const data = snap.data();
+        console.log('Firestore 데이터:', data);
+        
+        if (data && data.values && Array.isArray(data.values)) {
+          console.log('Firestore values 배열:', data.values);
+          const values = data.values.map(n => Number(n) || 0);
+          console.log('처리된 값들:', values);
+          
+          if (values.length === 24) {
+            renderSpark(values);
+            setStatus('✅ Firestore 로드 성공! 24시간 차트가 표시됩니다.');
+          } else {
+            console.log('values 배열 길이가 24가 아님:', values.length);
+            setStatus(`⚠️ 데이터 길이 오류: ${values.length}개 (24개 필요). 기본 차트를 표시합니다.`);
+            const defaultValues = new Array(24).fill(0);
+            renderSpark(defaultValues);
+          }
+        } else {
+          console.log('Firestore 데이터 구조 오류:', data);
+          setStatus('⚠️ Firestore 데이터 구조 오류. 기본 차트를 표시합니다.');
+          const defaultValues = new Array(24).fill(0);
+          renderSpark(defaultValues);
+        }
+      }catch(e){
+        console.error('[spark] failed to load:', e);
+        const msg = String(e && e.message ? e.message : e);
+        console.log('에러 메시지:', msg);
+        
+        if(/Missing or insufficient permissions/i.test(msg)){
+          setStatus('권한 오류: Firestore 규칙 또는 승인 도메인을 확인하세요 (개발용으로 allow read: if true;).');
+        } else if(/Failed to fetch/i.test(msg) || /Network/i.test(msg)){
+          setStatus('네트워크/호출 오류: 반드시 dev 서버 URL(http://localhost:5173)로 접속하세요.');
+        } else if(/invalid-argument|appId|apiKey|authDomain/i.test(msg)){
+          setStatus('설정 오류: Firebase config 값을 다시 확인하세요.');
+        } else {
+          setStatus('로드 실패: ' + msg);
+        }
+      }
+    });
+  </script>
 </body>
 </html>
