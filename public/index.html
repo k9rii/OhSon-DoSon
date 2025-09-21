@@ -247,18 +247,20 @@
   <script>
     // Optional: set Firebase config globally before loading js/firebase.js
     window.__FIREBASE_CONFIG__ = {
-      apiKey: "AIzaSyAauclmm4DAdTU8zxN_ZkdH0tXB0eHgll4",
-      authDomain: "makinggood-2025.firebaseapp.com",
-      projectId: "makinggood-2025",
-      storageBucket: "makinggood-2025.firebasestorage.app",
-      messagingSenderId: "718359291961",
-      appId: "1:718359291961:web:dd3f7cd3c8639a02f905e8"
+      apiKey: "AIzaSyASGUmplriLiSlKtfqRo5Z-bfZce14KHaA",
+      authDomain: "ohson-doson.firebaseapp.com",
+      databaseURL: "https://ohson-doson-default-rtdb.firebaseio.com",
+      projectId: "ohson-doson",
+      storageBucket: "ohson-doson.firebasestorage.app",
+      messagingSenderId: "227534929884",
+      appId: "1:227534929884:web:807654b8a6afa325da5919",
+      measurementId: "G-6HDSB5SD6C"
     };
   </script>
   <script type="module" src="/js/firebase.js"></script>
   <script type="module">
     import { getFirebase } from '/js/firebase.js';
-    import { doc, getDoc } from 'https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore.js';
+    import { ref, get } from 'https://www.gstatic.com/firebasejs/10.13.2/firebase-database.js';
 
     const statusEl = document.getElementById('fb-status');
     const setStatus = (msg)=>{ if(statusEl) statusEl.textContent = msg; };
@@ -300,25 +302,25 @@
 
     document.addEventListener('DOMContentLoaded', async ()=>{
       try{
-        const { db, app } = getFirebase();
+        const { rtdb, app } = getFirebase();
         setStatus('Firebase 초기화 완료. 데이터 불러오는 중...');
-        const ref = doc(db, 'metrics', 'noise24h');
-        const snap = await getDoc(ref);
-        if(!snap.exists()){
-          setStatus('문서가 없습니다: metrics/noise24h. Firestore에 values[24]를 만들어 주세요.');
+        const dataRef = ref(rtdb, 'metrics/noise24h');
+        const snapshot = await get(dataRef);
+        if(!snapshot.exists()){
+          setStatus('데이터가 없습니다: metrics/noise24h. Realtime Database에 values[24]를 만들어 주세요.');
           return;
         }
-        const data = snap.data();
+        const data = snapshot.val();
         const values = Array.isArray(data?.values) && data.values.length === 24
           ? data.values.map(n=>Number(n)||0)
           : new Array(24).fill(0);
         renderSpark(values);
-        setStatus('Firestore 로드 성공. 차트가 최신 데이터로 표시됩니다.');
+        setStatus('Realtime Database 로드 성공. 차트가 최신 데이터로 표시됩니다.');
       }catch(e){
         console.error('[spark] failed to load:', e);
         const msg = String(e && e.message ? e.message : e);
         if(/Missing or insufficient permissions/i.test(msg)){
-          setStatus('권한 오류: Firestore 규칙 또는 승인 도메인을 확인하세요 (개발용으로 allow read: if true;).');
+          setStatus('권한 오류: Realtime Database 규칙 또는 승인 도메인을 확인하세요 (개발용으로 allow read: if true;).');
         } else if(/Failed to fetch/i.test(msg) || /Network/i.test(msg)){
           setStatus('네트워크/호출 오류: 반드시 dev 서버 URL(http://localhost:5173)로 접속하세요.');
         } else if(/invalid-argument|appId|apiKey|authDomain/i.test(msg)){

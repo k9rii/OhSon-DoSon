@@ -12,6 +12,7 @@
     "vite": "^7.1.2"
   },
   "dependencies": {
+    "@dataconnect/generated": "file:src/dataconnect-generated",
     "badwords-ko": "^1.0.4"
   }
 }

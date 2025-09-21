@@ -6,19 +6,22 @@
     <title>오손도손 - 데이터 & 통계</title>
     <link rel="stylesheet" href="/css/sungjoo">
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
         //Firebase 초기화 코드는 외부 JS 파일보다 먼저 실행되어야 하므로 여기에 둡니다.
         const firebaseConfig = {
-            apiKey: "AIzaSyAauclmm4DAdTU8zxN_ZkdH0tXB0eHgll4",
-            authDomain: "makinggood-2025.firebaseapp.com",
-            projectId: "makinggood-2025",
-            storageBucket: "makinggood-2025.firebasestorage.app",
-            messagingSenderId: "718359291961",
-            appId: "1:718359291961:web:dd3f7cd3c8639a02f905e8"
+            apiKey: "AIzaSyASGUmplriLiSlKtfqRo5Z-bfZce14KHaA",
+            authDomain: "ohson-doson.firebaseapp.com",
+            databaseURL: "https://ohson-doson-default-rtdb.firebaseio.com",
+            projectId: "ohson-doson",
+            storageBucket: "ohson-doson.firebasestorage.app",
+            messagingSenderId: "227534929884",
+            appId: "1:227534929884:web:807654b8a6afa325da5919",
+            measurementId: "G-6HDSB5SD6C"
         };
         firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
     </script>
 </head>
 <body>

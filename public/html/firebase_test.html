@@ -17,17 +17,19 @@
     <script>
         // Firebase 초기화
         const firebaseConfig = {
-            apiKey: "AIzaSyAauclmm4DAdTU8zxN_ZkdH0tXB0eHgll4",
-            authDomain: "makinggood-2025.firebaseapp.com",
-            projectId: "makinggood-2025",
-            storageBucket: "makinggood-2025.firebasestorage.app",
-            messagingSenderId: "718359291961",
-            appId: "1:718359291961:web:dd3f7cd3c8639a02f905e8"
+            apiKey: "AIzaSyASGUmplriLiSlKtfqRo5Z-bfZce14KHaA",
+            authDomain: "ohson-doson.firebaseapp.com",
+            databaseURL: "https://ohson-doson-default-rtdb.firebaseio.com",
+            projectId: "ohson-doson",
+            storageBucket: "ohson-doson.firebasestorage.app",
+            messagingSenderId: "227534929884",
+            appId: "1:227534929884:web:807654b8a6afa325da5919",
+            measurementId: "G-6HDSB5SD6C"
         };
         
         try {
             firebase.initializeApp(firebaseConfig);
-            const db = firebase.firestore();
+            const db = firebase.database();
             console.log('Firebase 초기화 성공');
         } catch (error) {
             console.error('Firebase 초기화 실패:', error);
@@ -38,8 +40,9 @@
             statusEl.innerHTML = 'Firebase 연결 테스트 중...';
             
             try {
-                const db = firebase.firestore();
-                const testDoc = await db.collection('test').doc('connection').get();
+                const db = firebase.database();
+                const testRef = db.ref('test/connection');
+                await testRef.set({ timestamp: Date.now() });
                 statusEl.innerHTML = '✅ Firebase 연결 성공!';
             } catch (error) {
                 statusEl.innerHTML = `❌ Firebase 연결 실패: ${error.message}`;
@@ -52,7 +55,7 @@
             statusEl.innerHTML = '데이터 추가 중...';
             
             try {
-                const db = firebase.firestore();
+                const db = firebase.database();
                 
                 // 24시간 소음 데이터
                 const noiseData = {
@@ -65,11 +68,11 @@
                         60, 55, 50, 45,  // 20-23시: 밤
                         40, 38           // 24시: 자정
                     ],
-                    lastUpdated: firebase.firestore.FieldValue.serverTimestamp(),
+                    lastUpdated: firebase.database.ServerValue.TIMESTAMP,
                     description: "24시간 소음 레벨 데이터 (dB)"
                 };
 
-                await db.collection('metrics').doc('noise24h').set(noiseData);
+                await db.ref('metrics/noise24h').set(noiseData);
                 statusEl.innerHTML = '✅ 테스트 데이터가 성공적으로 추가되었습니다!';
                 
             } catch (error) {
@@ -83,14 +86,14 @@
             statusEl.innerHTML = '데이터 읽기 중...';
             
             try {
-                const db = firebase.firestore();
-                const doc = await db.collection('metrics').doc('noise24h').get();
+                const db = firebase.database();
+                const snapshot = await db.ref('metrics/noise24h').once('value');
                 
-                if (doc.exists) {
-                    const data = doc.data();
+                if (snapshot.exists()) {
+                    const data = snapshot.val();
                     statusEl.innerHTML = `✅ 데이터 읽기 성공!<br>값: ${JSON.stringify(data.values)}`;
                 } else {
-                    statusEl.innerHTML = '❌ 문서가 존재하지 않습니다.';
+                    statusEl.innerHTML = '❌ 데이터가 존재하지 않습니다.';
                 }
                 
             } catch (error) {

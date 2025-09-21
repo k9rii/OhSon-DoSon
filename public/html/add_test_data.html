@@ -15,15 +15,17 @@
     <script>
         // Firebase 초기화
         const firebaseConfig = {
-            apiKey: "AIzaSyAauclmm4DAdTU8zxN_ZkdH0tXB0eHgll4",
-            authDomain: "makinggood-2025.firebaseapp.com",
-            projectId: "makinggood-2025",
-            storageBucket: "makinggood-2025.firebasestorage.app",
-            messagingSenderId: "718359291961",
-            appId: "1:718359291961:web:dd3f7cd3c8639a02f905e8"
+            apiKey: "AIzaSyASGUmplriLiSlKtfqRo5Z-bfZce14KHaA",
+            authDomain: "ohson-doson.firebaseapp.com",
+            databaseURL: "https://ohson-doson-default-rtdb.firebaseio.com",
+            projectId: "ohson-doson",
+            storageBucket: "ohson-doson.firebasestorage.app",
+            messagingSenderId: "227534929884",
+            appId: "1:227534929884:web:807654b8a6afa325da5919",
+            measurementId: "G-6HDSB5SD6C"
         };
         firebase.initializeApp(firebaseConfig);
-        const db = firebase.firestore();
+        const db = firebase.database();
 
         async function addTestData() {
             const statusEl = document.getElementById('status');
@@ -41,11 +43,11 @@
                         60, 55, 50, 45,  // 20-23시: 밤 (점점 감소)
                         40, 38           // 24시: 자정 (조용함)
                     ],
-                    lastUpdated: firebase.firestore.FieldValue.serverTimestamp(),
+                    lastUpdated: firebase.database.ServerValue.TIMESTAMP,
                     description: "24시간 소음 레벨 데이터 (dB)"
                 };
 
-                await db.collection('metrics').doc('noise24h').set(testData);
+                await db.ref('metrics/noise24h').set(testData);
                 statusEl.innerHTML = '✅ 테스트 데이터가 성공적으로 추가되었습니다!<br>이제 홈 페이지에서 차트를 확인해보세요.';
                 
             } catch (error) {

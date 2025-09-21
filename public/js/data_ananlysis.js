@@ -1,5 +1,8 @@
-//Firebase 초기화 (이 코드는 HTML 파일의 <head>에 있어야 합니다)
-const db = firebase.firestore();
+// Firebase Realtime Database 사용
+import { getFirebase } from '/js/firebase.js';
+import { ref, get } from 'https://www.gstatic.com/firebasejs/10.13.2/firebase-database.js';
+
+const { rtdb } = getFirebase();
 
 // 로그인 상태 확인 및 페이지 로딩
 const userId = sessionStorage.getItem('osondoson_user_id');
@@ -9,21 +12,21 @@ if (!userId) {
 } else {
     // 헤더 렌더링
     renderHeader(userId);
-    // Firestore에서 데이터 가져와서 차트 그리기 (임시 데이터 사용)
+    // Realtime Database에서 데이터 가져와서 차트 그리기 (임시 데이터 사용)
     fetchDataAndRenderChart(userId);
 }
 
-// Firestore에서 데이터 가져와 차트 그리는 함수
+// Realtime Database에서 데이터 가져와 차트 그리는 함수
 async function fetchDataAndRenderChart(currentUserId) {
     try {
-        console.log('Firestore에서 데이터 로딩 중...');
+        console.log('Realtime Database에서 데이터 로딩 중...');
         
-        // Firestore에서 24시간 데이터 가져오기
-        const docRef = db.collection('metrics').doc('noise24h');
-        const doc = await docRef.get();
+        // Realtime Database에서 24시간 데이터 가져오기
+        const dataRef = ref(rtdb, 'metrics/noise24h');
+        const snapshot = await get(dataRef);
         
-        if (doc.exists) {
-            const data = doc.data();
+        if (snapshot.exists()) {
+            const data = snapshot.val();
             const values = data.values || [];
             
             if (values.length === 24) {
@@ -31,19 +34,19 @@ async function fetchDataAndRenderChart(currentUserId) {
                 const labels = Array.from({length: 24}, (_, i) => `${i}시`);
                 createChart(labels, values);
                 updateStats(values);
-                console.log('Firestore 데이터 로딩 성공:', values);
+                console.log('Realtime Database 데이터 로딩 성공:', values);
             } else {
                 // 데이터가 부족한 경우 기본 데이터 사용
-                console.log('Firestore 데이터가 부족함, 기본 데이터 사용');
+                console.log('Realtime Database 데이터가 부족함, 기본 데이터 사용');
                 useDefaultData();
             }
         } else {
-            // 문서가 없는 경우 기본 데이터 사용
-            console.log('Firestore 문서가 없음, 기본 데이터 사용');
+            // 데이터가 없는 경우 기본 데이터 사용
+            console.log('Realtime Database 데이터가 없음, 기본 데이터 사용');
             useDefaultData();
         }
     } catch (error) {
-        console.error('Firestore 데이터 로딩 실패:', error);
+        console.error('Realtime Database 데이터 로딩 실패:', error);
         // 에러 발생 시 기본 데이터 사용
         useDefaultData();
     }

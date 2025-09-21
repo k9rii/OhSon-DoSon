@@ -4,7 +4,6 @@
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.13.2/firebase-app.js';
 import { getAnalytics, isSupported as analyticsSupported } from 'https://www.gstatic.com/firebasejs/10.13.2/firebase-analytics.js';
 import { getAuth } from 'https://www.gstatic.com/firebasejs/10.13.2/firebase-auth.js';
-import { getFirestore } from 'https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore.js';
 import { getDatabase } from 'https://www.gstatic.com/firebasejs/10.13.2/firebase-database.js';
 import { getStorage } from 'https://www.gstatic.com/firebasejs/10.13.2/firebase-storage.js';
 
@@ -23,7 +22,6 @@ try {
 }
 
 const auth = getAuth(app);
-const db = getFirestore(app);
 const rtdb = getDatabase(app);
 const storage = getStorage(app);
 
@@ -34,5 +32,5 @@ try {
   }
 } catch (_) { /* ignore */ }
 
-window.firebaseServices = { app, auth, db, rtdb, storage, analytics };
+window.firebaseServices = { app, auth, rtdb, storage, analytics };
 export function getFirebase() { return window.firebaseServices; }

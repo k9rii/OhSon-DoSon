@@ -61,14 +61,56 @@ main{max-width:1200px; margin:24px auto; padding:0 20px; width:100%}
 .b-bad{background:linear-gradient(135deg, rgba(239,68,68,.18), rgba(239,68,68,.08)); color:#991b1b}
 
 /* 막대 스파크 그래프 (CSS만 사용) */
-.spark{display:grid; grid-template-columns:repeat(24,1fr); gap:4px; align-items:end; height:120px; padding:8px; border-radius:12px; background:rgba(46,125,50,.06); border:1px dashed var(--border)}
-.spark .bar{height:var(--h); border-radius:6px 6px 2px 2px; background:linear-gradient(180deg, rgba(46,125,50,.85), rgba(46,125,50,.3))}
-.spark .bar[data-level="good"]{background:linear-gradient(180deg, rgba(46,125,50,.85), rgba(46,125,50,.3))}
-.spark .bar[data-level="warn"]{background:linear-gradient(180deg, rgba(245,158,11,.95), rgba(245,158,11,.35))}
-.spark .bar[data-level="bad"]{background:linear-gradient(180deg, rgba(239,68,68,.95), rgba(239,68,68,.4))}
+.spark{
+  display: flex; /* grid 대신 flexbox를 사용하여 막대 정렬 */
+  justify-content: space-between; /* 막대들을 균등하게 배치 */
+  align-items: flex-end; /* 막대가 바닥부터 자라나게 */
+  height: 200px; /* 그래프 높이 키움 */
+  padding: 10px 4px; /* 내부 여백 조정 */
+  border-radius: 12px;
+  background: rgba(46, 125, 50, .06);
+  border: 1px dashed var(--border);
+}
+.spark .bar {
+    flex-grow: 1; /* 모든 막대가 동일한 너비를 가짐 */
+    width: 100%; /* flex-grow와 함께 사용 */
+    height: var(--h); /* 자바스크립트에서 설정된 높이 변수 사용 */
+    border-radius: 6px 6px 2px 2px;
+    transition: height .3s ease; /* 높이 변화에 부드러운 애니메이션 효과 추가 */
+    background: linear-gradient(180deg, rgba(46, 125, 50, .85), rgba(46, 125, 50, .3));
+}
+
+.spark .bar[data-level="good"] {
+    background: linear-gradient(180deg, rgba(46, 125, 50, .85), rgba(46, 125, 50, .3));
+}
+
+.spark .bar[data-level="warn"] {
+    background: linear-gradient(180deg, rgba(245, 158, 11, .95), rgba(245, 158, 11, .35));
+}
+
+.spark .bar[data-level="bad"] {
+    background: linear-gradient(180deg, rgba(239, 68, 68, .95), rgba(239, 68, 68, .4));
+}
 .spark-legend{display:flex; gap:12px; margin-top:10px; color:var(--muted); font-size:.85rem}
 .dot{width:10px; height:10px; border-radius:50%}
 .d-good{background:var(--good)} .d-warn{background:var(--warn)} .d-bad{background:var(--bad)}
+
+.spark-xaxis {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 10px; /* 그래프와의 간격 */
+    font-size: 0.8rem;
+    color: var(--muted);
+    padding: 0 4px;
+}
+.spark-xaxis span {
+    flex: 1;
+    text-align: center;
+    visibility: hidden; /* 기본적으로 숨김 */
+}
+.spark-xaxis span:nth-child(6n+1) { /* 0, 6, 12, 18시만 보이게 함 */
+    visibility: visible;
+}
 
 /* 소리 유형 TOP3 */
 .hbars{display:grid; gap:10px}
