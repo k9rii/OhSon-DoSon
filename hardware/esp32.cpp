@@ -6,12 +6,12 @@
 #include <HardwareSerial.h>
 
 // --- 1. 와이파이(WiFi) 정보 입력 ---
-#define WIFI_SSID "JOOOO"
-#define WIFI_PASSWORD "987654a!"
+#define WIFI_SSID ""
+#define WIFI_PASSWORD ""
 
 // --- 2. 파이어베이스(Firebase) 정보 입력 ---
-#define FIREBASE_HOST "https://ohson-doson-default-rtdb.firebaseio.com"
-#define FIREBASE_AUTH "AIzaSyDlTN1eX4Sw0EUkqy6ptplckuJmiwvVKv0"
+#define FIREBASE_HOST ""
+#define FIREBASE_AUTH ""
 
 // --- 객체 선언 ---
 FirebaseData firebaseData;
